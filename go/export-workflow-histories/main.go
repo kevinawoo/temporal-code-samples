@@ -16,7 +16,8 @@ import (
 )
 
 func main() {
-	// The client is a heavyweight object that should be created once per process.
+	namespace := "default"
+
 	c, err := client.Dial(client.Options{})
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
@@ -24,7 +25,7 @@ func main() {
 	defer c.Close()
 
 	ctx := context.Background()
-	d := NewDownloader("default", "out", c, `WorkflowType = 'Workflow'`)
+	d := NewDownloader(namespace, "out", c, ``)
 
 	err = d.downloadWorkflows(ctx)
 	if err != nil {
@@ -74,10 +75,18 @@ func (d *downloader) downloadWorkflows(ctx context.Context) error {
 				PageSize:      d.pageSize,
 			})
 			if err != nil {
-				log.Printf("unable to scan workflows: %v\n", err)
+				log.Printf("unable to list workflows: %v\n", err)
 			}
 
-			log.Printf("found %d workflows\n", len(wfs.Executions))
+			found := 0
+			if wfs != nil {
+				found = len(wfs.Executions)
+			}
+			log.Printf("found %d workflows\n", found)
+
+			if wfs == nil {
+				break
+			}
 
 			for _, w := range wfs.Executions {
 				jobs <- w.Execution
