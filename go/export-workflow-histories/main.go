@@ -67,7 +67,7 @@ func (d *downloader) downloadWorkflows(ctx context.Context) error {
 	go func() {
 		var nextPageToken []byte
 		for {
-			wfs, err := d.client.ScanWorkflow(ctx, &workflowservice.ScanWorkflowExecutionsRequest{
+			wfs, err := d.client.ListWorkflow(ctx, &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace:     d.namespace,
 				Query:         d.query,
 				NextPageToken: nextPageToken,
