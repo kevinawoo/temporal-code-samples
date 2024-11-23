@@ -1,7 +1,7 @@
 package blobstore_data_converter
 
 import (
-	"code-samples/blob-store-data-converter/blobstore"
+	"blob-store-data-converter/blobstore"
 	"context"
 	"testing"
 

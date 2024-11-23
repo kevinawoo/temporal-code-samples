@@ -1,7 +1,7 @@
 package blobstore_data_converter
 
 import (
-	"code-samples/blob-store-data-converter/blobstore"
+	"blob-store-data-converter/blobstore"
 	"github.com/stretchr/testify/mock"
 	commonpb "go.temporal.io/api/common/v1"
 	"go.temporal.io/sdk/converter"

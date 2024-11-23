@@ -1,8 +1,8 @@
 package main
 
 import (
-	bsdc "code-samples/blob-store-data-converter"
-	"code-samples/blob-store-data-converter/blobstore"
+	bsdc "blob-store-data-converter"
+	"blob-store-data-converter/blobstore"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/worker"
