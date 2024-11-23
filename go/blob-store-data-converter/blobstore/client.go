@@ -2,45 +2,42 @@ package blobstore
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 )
 
 type Client struct {
+	dir string
 }
 
 func NewClient() *Client {
-	return &Client{}
+	return &Client{
+		dir: "/tmp/temporal-sample/blob-store-data-converter/blobs",
+	}
 }
 
 func (b *Client) SaveBlob(ctx context.Context, key string, data []byte) error {
-	dir, err := os.Getwd()
+	err := os.MkdirAll(b.dir, 0755)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create directory %s: %w", b.dir, err)
 	}
 
-	path := fmt.Sprintf("%s/blob-store-data-converter/blobs/%s", dir, strings.ReplaceAll(key, "/", "_"))
+	path := fmt.Sprintf(b.dir + "/" + strings.ReplaceAll(key, "/", "_"))
+	fmt.Println("saving blob to: ", path)
 	err = os.WriteFile(path, data, 0644)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to save blob: %w", err)
 	}
 	return nil
 }
 
-var NotFoundError = errors.New("blob not found")
-
 func (b *Client) GetBlob(ctx context.Context, key string) ([]byte, error) {
-	dir, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
-	path := fmt.Sprintf("%s/blob-store-data-converter/blobs/%s", dir, strings.ReplaceAll(key, "/", "_"))
+	path := fmt.Sprintf(b.dir + "/" + strings.ReplaceAll(key, "/", "_"))
+	fmt.Println("reading blob from: ", path)
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, errors.Join(NotFoundError, err)
+		return nil, fmt.Errorf("failed to read blob: %w", err)
 	}
 
 	return data, nil

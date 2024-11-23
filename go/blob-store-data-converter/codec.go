@@ -18,40 +18,78 @@ type BaseCodec struct {
 	client *blobstore.Client
 }
 
-var _ = converter.PayloadCodec(&BaseCodec{})
+var _ = converter.PayloadCodec(&BaseCodec{}) // Ensure that BaseCodec implements converter.PayloadCodec
 
+// NewBaseCodec is not aware of where to store the blobs
+// Prefer to use NewCtxAwareCodec when possible
 func NewBaseCodec(c *blobstore.Client) *BaseCodec {
 	return &BaseCodec{
 		client: c,
 	}
 }
 
-type ScopedCodec struct {
-	ctx        context.Context // todo: remove this hack
+// Encode needs to be implemented for codec-server support inputs from the CLI and UI
+// In its current implementation, it does not how/where to store the blobs
+func (c *BaseCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+	result := make([]*commonpb.Payload, len(payloads))
+	for i, p := range payloads {
+		result[i] = &commonpb.Payload{Metadata: p.Metadata, Data: p.Data}
+		return nil, fmt.Errorf(string(p.Metadata["encoding"]) + " encoding not implemented")
+	}
+
+	return result, nil
+}
+
+// Decode does not need to be context aware because it can fetch the blobs via the payload path
+func (c *BaseCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+	return decode(context.Background(), c.client, payloads)
+}
+
+func decode(ctx context.Context, client *blobstore.Client, payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+	result := make([]*commonpb.Payload, len(payloads))
+	for i, p := range payloads {
+		if string(p.Metadata["encoding"]) != MetadataEncodingBlobStorePlain {
+			result[i] = p
+			continue
+		}
+
+		// fetch it from our blob store db
+		data, err := client.GetBlob(ctx, string(p.Data))
+		if err != nil {
+			return payloads, err
+		}
+
+		result[i] = &commonpb.Payload{}
+		err = result[i].Unmarshal(data)
+		if err != nil {
+			return payloads, err
+		}
+	}
+
+	return result, nil
+}
+
+type CtxAwareCodec struct {
+	ctx        context.Context // todo: it's bad practice to store context the struct, but this is a singleton, so maybe it's ok
 	client     *blobstore.Client
 	bucket     string
 	pathPrefix []string
 }
 
-var _ = converter.PayloadCodec(&ScopedCodec{})
+var _ = converter.PayloadCodec(&CtxAwareCodec{}) // Ensure that CtxAwareCodec implements converter.PayloadCodec
 
-func NewScopedCodec(ctx context.Context, c *blobstore.Client, pathPrefix []string) *ScopedCodec {
-	return &ScopedCodec{
+// NewCtxAwareCodec is aware of where of the propagated context values from the data converter
+func NewCtxAwareCodec(ctx context.Context, c *blobstore.Client, values PropagatedValues) *CtxAwareCodec {
+	return &CtxAwareCodec{
 		ctx:        ctx,
 		client:     c,
 		bucket:     "blob://mybucket",
-		pathPrefix: pathPrefix,
+		pathPrefix: values.BlobStorePathSegments,
 	}
 }
 
-// Encode
-//
-//	payloads looks like:
-//	[
-//		{metadata: {encoding: "json/plain", tenantId: "..."}, data: ...},
-//		{metadata: {encoding: "json/plain", tenantId: "..."}, data: ...},
-//	]
-func (c *ScopedCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+// Encode knows where to store the blobs from values stored in the context
+func (c *CtxAwareCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
 		origBytes, err := p.Marshal()
@@ -60,11 +98,7 @@ func (c *ScopedCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload,
 		}
 
 		// save the data in our blob store db
-		// path = blob://<tenantId>/<workflowId>-<runId>-<eventId>
-		objectName := strings.Join(c.pathPrefix[1:], "-")
-		if objectName == "" {
-			objectName = "unknown-" + uuid.New().String()
-		}
+		objectName := strings.Join(c.pathPrefix[1:], "-") + "_" + uuid.New().String() // ensures each blob is unique
 		path := fmt.Sprintf("%s/%s/%s", c.bucket, c.pathPrefix[0], objectName)
 		err = c.client.SaveBlob(c.ctx, path, origBytes)
 		if err != nil {
@@ -82,54 +116,7 @@ func (c *ScopedCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload,
 	return result, nil
 }
 
-func (c *ScopedCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
-	result := make([]*commonpb.Payload, len(payloads))
-	for i, p := range payloads {
-		if string(p.Metadata["encoding"]) != "blobstore/plain" {
-			continue
-		}
-
-		// fetch it from our blob store db
-		data, err := c.client.GetBlob(c.ctx, string(p.Data))
-		if err != nil {
-			return payloads, err
-		}
-
-		result[i] = &commonpb.Payload{}
-		err = result[i].Unmarshal(data)
-		if err != nil {
-			return payloads, err
-		}
-	}
-
-	return result, nil
-}
-
-func (c *BaseCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
-	panic("unimplemented")
-}
-
-// Decode gets called from the starter on workflow completion
-func (c *BaseCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
-	result := make([]*commonpb.Payload, len(payloads))
-	for i, p := range payloads {
-		if string(p.Metadata["encoding"]) != MetadataEncodingBlobStorePlain {
-			result[i] = p
-			continue
-		}
-
-		// fetch it from our blob store db
-		data, err := c.client.GetBlob(context.TODO(), string(p.Data))
-		if err != nil {
-			return payloads, err
-		}
-
-		result[i] = &commonpb.Payload{}
-		err = result[i].Unmarshal(data)
-		if err != nil {
-			return payloads, err
-		}
-	}
-
-	return result, nil
+// Decode does not need to be context aware because it can fetch the blobs via the payload path
+func (c *CtxAwareCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+	return decode(c.ctx, c.client, payloads)
 }

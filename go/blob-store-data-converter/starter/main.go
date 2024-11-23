@@ -21,7 +21,7 @@ func main() {
 			bsClient,
 		),
 		// Use a ContextPropagator so that the KeyID value set in the workflow context is
-		// also availble in the context for activities.
+		// also available in the context for activities.
 		ContextPropagators: []workflow.ContextPropagator{
 			bsdc.NewContextPropagator(),
 		},
@@ -37,15 +37,13 @@ func main() {
 	}
 
 	ctx := context.Background()
-	// If you are using a ContextPropagator and varying keys per workflow you need to set
-	// the KeyID to use for this workflow in the context:
-	ctx = context.WithValue(ctx, bsdc.BlobStorePathPrefixKey, []string{"tenant111"})
+	ctx = context.WithValue(ctx, bsdc.PropagatedValuesKey, bsdc.NewPropagatedValues([]string{"org1", "tenant2"}))
 
 	we, err := c.ExecuteWorkflow(
 		ctx,
 		workflowOptions,
 		bsdc.Workflow,
-		"Starter: Big Blob Bob",
+		"Starter: big big blob",
 	)
 	if err != nil {
 		log.Fatalln("Unable to execute workflow", err)

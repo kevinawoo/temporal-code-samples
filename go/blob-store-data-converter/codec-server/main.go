@@ -2,6 +2,7 @@ package main
 
 import (
 	bsdc "code-samples/blob-store-data-converter"
+	"code-samples/blob-store-data-converter/blobstore"
 	"flag"
 	"go.temporal.io/sdk/converter"
 	"log"
@@ -25,7 +26,7 @@ func main() {
 	// For a more complete example of a codec server please see the codec-server sample at:
 	// ../../codec-server.
 	handler := converter.NewPayloadCodecHTTPHandler(
-		&bsdc.BaseCodec{},
+		bsdc.NewBaseCodec(blobstore.NewClient()),
 	)
 
 	srv := &http.Server{

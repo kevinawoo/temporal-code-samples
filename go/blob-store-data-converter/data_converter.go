@@ -15,8 +15,7 @@ type DataConverter struct {
 	converter.DataConverter // embeds converter.DataConverter
 }
 
-// Ensure that DataConverter implements workflow.ContextAware
-var _ = workflow.ContextAware(&DataConverter{})
+var _ = workflow.ContextAware(&DataConverter{}) // Ensure that DataConverter implements workflow.ContextAware
 
 // NewDataConverter returns DataConverter, which embeds converter.DataConverter
 func NewDataConverter(parent converter.DataConverter, client *blobstore.Client) *DataConverter {
@@ -31,31 +30,31 @@ func NewDataConverter(parent converter.DataConverter, client *blobstore.Client) 
 	}
 }
 
-// WithWorkflowContext is needed to allow the blobstore be path prefixed by a tenant ID
+// WithWorkflowContext will create a new DataConverter specifically for blob storage
+// This is called from within the workflow
 func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.DataConverter {
-	if val, ok := ctx.Value(BlobStorePathPrefixKey).([]string); ok {
-		_ = val
+	if vals, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues); ok {
 		parent := dc.parent
 		if parentWithContext, ok := parent.(workflow.ContextAware); ok {
 			parent = parentWithContext.WithWorkflowContext(ctx)
 		}
 
-		return converter.NewCodecDataConverter(dc.parent, NewScopedCodec(context.TODO(), dc.client, val))
+		return converter.NewCodecDataConverter(dc.parent, NewCtxAwareCodec(context.Background(), dc.client, vals))
 	}
 
 	return dc
 }
 
-// WithContext is called from the starter and used to inject values to the workflow
+// WithContext will create a new DataConverter specifically for blob storage
+// This is called from the starter when executing and during activities starting and completing
 func (dc *DataConverter) WithContext(ctx context.Context) converter.DataConverter {
-	if val, ok := ctx.Value(BlobStorePathPrefixKey).([]string); ok {
-		_ = val
+	if vals, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues); ok {
 		parent := dc.parent
 		if parentWithContext, ok := parent.(workflow.ContextAware); ok {
 			parent = parentWithContext.WithContext(ctx)
 		}
 
-		return converter.NewCodecDataConverter(dc.parent, NewScopedCodec(ctx, dc.client, val))
+		return converter.NewCodecDataConverter(dc.parent, NewCtxAwareCodec(ctx, dc.client, vals))
 	}
 
 	return dc

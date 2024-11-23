@@ -1,6 +1,7 @@
 package blobstore_data_converter
 
 import (
+	"code-samples/blob-store-data-converter/blobstore"
 	"context"
 	"testing"
 
@@ -12,11 +13,13 @@ func Test_DataConverter(t *testing.T) {
 	defaultDc := converter.GetDefaultDataConverter()
 
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, BlobStorePathPrefixKey, CryptContext{KeyID: "test"})
+	ctx = context.WithValue(ctx, PropagatedValuesKey, NewPropagatedValues([]string{"org1", "tenant2"}))
+
+	db := blobstore.NewClient()
 
 	cryptDc := NewDataConverter(
 		converter.GetDefaultDataConverter(),
-		DataConverterOptions{},
+		db,
 	)
 	cryptDcWc := cryptDc.WithContext(ctx)
 

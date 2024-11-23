@@ -21,5 +21,5 @@ func Test_Workflow(t *testing.T) {
 	require.NoError(t, env.GetWorkflowError())
 	var result string
 	require.NoError(t, env.GetWorkflowResult(&result))
-	require.Equal(t, "Hello Temporal!", result)
+	require.Equal(t, "Workflow: Hello Temporal!", result)
 }
