@@ -12,7 +12,7 @@ func Test_DataConverter(t *testing.T) {
 	defaultDc := converter.GetDefaultDataConverter()
 
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, TenantKey, CryptContext{KeyID: "test"})
+	ctx = context.WithValue(ctx, BlobStorePathPrefixKey, CryptContext{KeyID: "test"})
 
 	cryptDc := NewDataConverter(
 		converter.GetDefaultDataConverter(),

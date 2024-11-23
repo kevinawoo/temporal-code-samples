@@ -2,15 +2,17 @@ package main
 
 import (
 	bsdc "code-samples/blob-store-data-converter"
-	"log"
-
+	"code-samples/blob-store-data-converter/blobstore"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
+	"log"
 )
 
 func main() {
+	bsClient := blobstore.NewClient()
+
 	// The client and worker are heavyweight objects that should be created once per process.
 	c, err := client.Dial(client.Options{
 		// If you intend to let the dataConverter to decide encryption key for all workflows
@@ -33,10 +35,11 @@ func main() {
 		// Set DataConverter to ensure that workflow inputs and results are
 		// encrypted/decrypted as required.
 		DataConverter: bsdc.NewDataConverter(
-			converter.GetDefaultDataConverter(), nil,
+			converter.GetDefaultDataConverter(),
+			bsClient,
 		),
 		// Use a ContextPropagator so that the KeyID value set in the workflow context is
-		// also availble in the context for activities.
+		// also available in the context for activities.
 		ContextPropagators: []workflow.ContextPropagator{
 			bsdc.NewContextPropagator(),
 		},
@@ -46,7 +49,7 @@ func main() {
 	}
 	defer c.Close()
 
-	w := worker.New(c, "encryption", worker.Options{})
+	w := worker.New(c, "blobstore_codec", worker.Options{})
 
 	w.RegisterWorkflow(bsdc.Workflow)
 	w.RegisterActivity(bsdc.Activity)

@@ -4,16 +4,37 @@ import (
 	"code-samples/blob-store-data-converter/blobstore"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	commonpb "go.temporal.io/api/common/v1"
+	"go.temporal.io/sdk/converter"
+	"strings"
 )
 
 type Codec struct {
 	client *blobstore.Client
 }
 
-func NewCodec(c *blobstore.Client) *Codec {
+var _ = converter.PayloadCodec(&Codec{})
+
+func NewBaseCodec(c *blobstore.Client) *Codec {
 	return &Codec{
 		client: c,
+	}
+}
+
+type BlobStoreCodec struct {
+	ctx        context.Context // todo: remove this hack
+	client     *blobstore.Client
+	pathPrefix []string
+}
+
+var _ = converter.PayloadCodec(&BlobStoreCodec{})
+
+func NewBlobStoreCodec(ctx context.Context, c *blobstore.Client, pathPrefix []string) *BlobStoreCodec {
+	return &BlobStoreCodec{
+		ctx:        ctx,
+		client:     c,
+		pathPrefix: pathPrefix,
 	}
 }
 
@@ -21,53 +42,79 @@ func NewCodec(c *blobstore.Client) *Codec {
 //
 //	payloads looks like:
 //	[
-//		{metadata: {encoding: "plainText", tenantId: "..."}, data: ...},
-//		{metadata: {encoding: "plainText", tenantId: "..."}, data: ...},
+//		{metadata: {encoding: "json/plain", tenantId: "..."}, data: ...},
+//		{metadata: {encoding: "json/plain", tenantId: "..."}, data: ...},
 //	]
-func (b *Codec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
-	ctx := context.Background()
-
-	pathPrefix := "blob://"
+func (c *BlobStoreCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+	bucket := "blob://mybucket"
 
 	result := make([]*commonpb.Payload, len(payloads))
-	for _, p := range payloads {
-		// metadata = {encoding: "plainText", tenantId: "...", workflowId: "..."}
-
+	for i, p := range payloads {
 		origBytes, err := p.Marshal()
 		if err != nil {
 			return payloads, err
 		}
 
-		// path = blob://<tenantId>/<workflowId>-<runId>-<eventId>
 		// save the data in our blob store db
-		path := fmt.Sprintf("%s/%s/%s-%s-%s", pathPrefix, string(p.Metadata["tenantId"]), string(p.Metadata["workflowId"]), string(p.Metadata["runId"]), string(p.Metadata["eventId"]))
-		err = b.client.SaveBlob(ctx, path, origBytes)
+		// path = blob://<tenantId>/<workflowId>-<runId>-<eventId>
+		objectName := strings.Join(c.pathPrefix[1:], "-")
+		if objectName == "" {
+			objectName = "unknown-" + uuid.New().String()
+		}
+		path := fmt.Sprintf("%s/%s/%s", bucket, c.pathPrefix[0], objectName)
+		err = c.client.SaveBlob(c.ctx, path, origBytes)
 		if err != nil {
 			return payloads, err
 		}
 
-		result = append(result, &commonpb.Payload{
+		result[i] = &commonpb.Payload{
 			Metadata: map[string][]byte{
-				"encoding": []byte("blobStore"),
+				"encoding": []byte("blobstore/plain"),
 			},
 			Data: []byte(path),
-		})
+		}
 	}
 
 	return result, nil
 }
 
-func (b *Codec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
-	ctx := context.Background()
-
+func (c *BlobStoreCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
-		if string(p.Metadata["encoding"]) != "blobStore" {
-			return payloads, fmt.Errorf("unhandled encoding: %s", p.Metadata["encoding"])
+		if string(p.Metadata["encoding"]) != "blobstore/plain" {
+			continue
 		}
 
 		// fetch it from our blob store db
-		data, err := b.client.GetBlob(ctx, string(p.Data))
+		data, err := c.client.GetBlob(c.ctx, string(p.Data))
+		if err != nil {
+			return payloads, err
+		}
+
+		result[i] = &commonpb.Payload{}
+		err = result[i].Unmarshal(data)
+		if err != nil {
+			return payloads, err
+		}
+	}
+
+	return result, nil
+}
+
+func (c *Codec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+	panic("unimplemented")
+}
+
+// Decode gets called from the starter on workflow completion
+func (c *Codec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+	result := make([]*commonpb.Payload, len(payloads))
+	for i, p := range payloads {
+		if string(p.Metadata["encoding"]) != "blobstore/plain" {
+			continue
+		}
+
+		// fetch it from our blob store db
+		data, err := c.client.GetBlob(context.TODO(), string(p.Data))
 		if err != nil {
 			return payloads, err
 		}

@@ -3,13 +3,12 @@ package main
 import (
 	bsdc "code-samples/blob-store-data-converter"
 	"flag"
+	"go.temporal.io/sdk/converter"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
-
-	"go.temporal.io/sdk/converter"
 )
 
 var portFlag int
@@ -31,7 +30,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:    "0.0.0.0:" + strconv.Itoa(portFlag),
-		Handler: handler,
+		Handler: newCORSHTTPHandler(handler),
 	}
 
 	errCh := make(chan error, 1)
@@ -46,4 +45,19 @@ func main() {
 	case err := <-errCh:
 		log.Fatal(err)
 	}
+}
+
+// newCORSHTTPHandler wraps a HTTP handler with CORS support
+func newCORSHTTPHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8233")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization,Content-Type,X-Namespace")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

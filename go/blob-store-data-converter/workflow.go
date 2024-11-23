@@ -18,11 +18,14 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
 	logger := workflow.GetLogger(ctx)
-	logger.Info("Encrypted Payloads workflow started", "name", name)
+	logger.Info("Blob Store workflow started", "name", name)
 
 	info := map[string]string{
 		"name": name,
 	}
+
+	ctxVal := ctx.Value(BlobStorePathPrefixKey)
+	logger.Info("workflow ctx value:", ctxVal)
 
 	var result string
 	err := workflow.ExecuteActivity(ctx, Activity, info).Get(ctx, &result)
@@ -31,14 +34,18 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 		return "", err
 	}
 
-	logger.Info("Encrypted Payloads workflow completed.", "result", result)
+	result = "Worker: " + result
+	logger.Info("Blob Store workflow completed.", "result", result)
 
 	return result, nil
 }
 
 func Activity(ctx context.Context, info map[string]string) (string, error) {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Activity", "info", info)
+	logger.Info("Blob Store Activity", "info", info)
+
+	val := ctx.Value(BlobStorePathPrefixKey)
+	logger.Info("activity ctx value:", val)
 
 	name, ok := info["name"]
 	if !ok {

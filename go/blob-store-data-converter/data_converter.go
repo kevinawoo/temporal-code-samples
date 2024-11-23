@@ -9,6 +9,7 @@ import (
 
 type DataConverter struct {
 	client *blobstore.Client
+
 	parent converter.DataConverter // Until EncodingDataConverter supports workflow.ContextAware we'll store parent here.
 
 	converter.DataConverter // embeds converter.DataConverter
@@ -20,7 +21,7 @@ var _ = workflow.ContextAware(&DataConverter{})
 // NewDataConverter returns DataConverter, which embeds converter.DataConverter
 func NewDataConverter(parent converter.DataConverter, client *blobstore.Client) *DataConverter {
 	next := []converter.PayloadCodec{
-		NewCodec(client),
+		NewBaseCodec(client),
 	}
 
 	return &DataConverter{
@@ -32,14 +33,14 @@ func NewDataConverter(parent converter.DataConverter, client *blobstore.Client) 
 
 // WithWorkflowContext is needed to allow the blobstore be path prefixed by a tenant ID
 func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.DataConverter {
-	if val, ok := ctx.Value(TenantKey).(string); ok {
+	if val, ok := ctx.Value(BlobStorePathPrefixKey).([]string); ok {
 		_ = val
 		parent := dc.parent
 		if parentWithContext, ok := parent.(workflow.ContextAware); ok {
 			parent = parentWithContext.WithWorkflowContext(ctx)
 		}
 
-		return NewDataConverter(parent, dc.client)
+		return converter.NewCodecDataConverter(dc.parent, NewBlobStoreCodec(context.TODO(), dc.client, val))
 	}
 
 	return dc
@@ -47,15 +48,14 @@ func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.Dat
 
 // WithContext is called from the starter and used to inject values to the workflow
 func (dc *DataConverter) WithContext(ctx context.Context) converter.DataConverter {
-	if val, ok := ctx.Value(TenantKey).(string); ok {
+	if val, ok := ctx.Value(BlobStorePathPrefixKey).([]string); ok {
 		_ = val
 		parent := dc.parent
 		if parentWithContext, ok := parent.(workflow.ContextAware); ok {
 			parent = parentWithContext.WithContext(ctx)
 		}
 
-		// use the default converter to encode/decode the context data
-		return converter.GetDefaultDataConverter()
+		return converter.NewCodecDataConverter(dc.parent, NewBlobStoreCodec(ctx, dc.client, val))
 	}
 
 	return dc
