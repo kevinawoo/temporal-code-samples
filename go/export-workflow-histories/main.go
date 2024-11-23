@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"go.temporal.io/api/common/v1"
 	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/history/v1"
 	"go.temporal.io/api/temporalproto"
 	"go.temporal.io/api/workflowservice/v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"log"
 	"os"
 	"sync"
@@ -16,9 +19,28 @@ import (
 )
 
 func main() {
-	namespace := "default"
+	namespace := "woo-apikey.a2dd6"
+	apiKey := os.Getenv("TEMPORAL_API_KEY")
 
-	c, err := client.Dial(client.Options{})
+	clientOptions := client.Options{
+		HostPort:    "us-east-1.aws.api.temporal.io:7233",
+		Namespace:   namespace,
+		Credentials: client.NewAPIKeyStaticCredentials(apiKey),
+		ConnectionOptions: client.ConnectionOptions{
+			TLS: &tls.Config{},
+			DialOptions: []grpc.DialOption{
+				grpc.WithUnaryInterceptor(
+					func(ctx context.Context, method string, req any, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+						return invoker(metadata.AppendToOutgoingContext(ctx, "temporal-namespace", namespace),
+							method,
+							req,
+							reply,
+							cc,
+							opts...,
+						)
+					})}},
+	}
+	c, err := client.Dial(clientOptions)
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
 	}
