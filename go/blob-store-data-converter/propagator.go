@@ -20,7 +20,7 @@ type (
 var PropagatedValuesKey = contextKey{}
 
 type PropagatedValues struct {
-	BlobStorePathSegments []string `json:"bspsegs"`
+	BlobStorePathSegments []string `json:"bsPathSegs"`
 }
 
 func NewPropagatedValues(pathSegments []string) PropagatedValues {
