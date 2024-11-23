@@ -40,7 +40,7 @@ func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.Dat
 			parent = parentWithContext.WithWorkflowContext(ctx)
 		}
 
-		return converter.NewCodecDataConverter(dc.parent, NewBlobStoreCodec(context.TODO(), dc.client, val))
+		return converter.NewCodecDataConverter(dc.parent, NewScopedCodec(context.TODO(), dc.client, val))
 	}
 
 	return dc
@@ -55,7 +55,7 @@ func (dc *DataConverter) WithContext(ctx context.Context) converter.DataConverte
 			parent = parentWithContext.WithContext(ctx)
 		}
 
-		return converter.NewCodecDataConverter(dc.parent, NewBlobStoreCodec(ctx, dc.client, val))
+		return converter.NewCodecDataConverter(dc.parent, NewScopedCodec(ctx, dc.client, val))
 	}
 
 	return dc

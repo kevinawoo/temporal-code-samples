@@ -25,7 +25,7 @@ func main() {
 	// For a more complete example of a codec server please see the codec-server sample at:
 	// ../../codec-server.
 	handler := converter.NewPayloadCodecHTTPHandler(
-		&bsdc.Codec{},
+		&bsdc.BaseCodec{},
 	)
 
 	srv := &http.Server{

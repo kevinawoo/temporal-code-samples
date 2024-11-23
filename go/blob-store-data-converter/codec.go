@@ -10,30 +10,36 @@ import (
 	"strings"
 )
 
-type Codec struct {
+const (
+	MetadataEncodingBlobStorePlain = "blobstore/plain"
+)
+
+type BaseCodec struct {
 	client *blobstore.Client
 }
 
-var _ = converter.PayloadCodec(&Codec{})
+var _ = converter.PayloadCodec(&BaseCodec{})
 
-func NewBaseCodec(c *blobstore.Client) *Codec {
-	return &Codec{
+func NewBaseCodec(c *blobstore.Client) *BaseCodec {
+	return &BaseCodec{
 		client: c,
 	}
 }
 
-type BlobStoreCodec struct {
+type ScopedCodec struct {
 	ctx        context.Context // todo: remove this hack
 	client     *blobstore.Client
+	bucket     string
 	pathPrefix []string
 }
 
-var _ = converter.PayloadCodec(&BlobStoreCodec{})
+var _ = converter.PayloadCodec(&ScopedCodec{})
 
-func NewBlobStoreCodec(ctx context.Context, c *blobstore.Client, pathPrefix []string) *BlobStoreCodec {
-	return &BlobStoreCodec{
+func NewScopedCodec(ctx context.Context, c *blobstore.Client, pathPrefix []string) *ScopedCodec {
+	return &ScopedCodec{
 		ctx:        ctx,
 		client:     c,
+		bucket:     "blob://mybucket",
 		pathPrefix: pathPrefix,
 	}
 }
@@ -45,9 +51,7 @@ func NewBlobStoreCodec(ctx context.Context, c *blobstore.Client, pathPrefix []st
 //		{metadata: {encoding: "json/plain", tenantId: "..."}, data: ...},
 //		{metadata: {encoding: "json/plain", tenantId: "..."}, data: ...},
 //	]
-func (c *BlobStoreCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
-	bucket := "blob://mybucket"
-
+func (c *ScopedCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
 		origBytes, err := p.Marshal()
@@ -61,7 +65,7 @@ func (c *BlobStoreCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Paylo
 		if objectName == "" {
 			objectName = "unknown-" + uuid.New().String()
 		}
-		path := fmt.Sprintf("%s/%s/%s", bucket, c.pathPrefix[0], objectName)
+		path := fmt.Sprintf("%s/%s/%s", c.bucket, c.pathPrefix[0], objectName)
 		err = c.client.SaveBlob(c.ctx, path, origBytes)
 		if err != nil {
 			return payloads, err
@@ -69,7 +73,7 @@ func (c *BlobStoreCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Paylo
 
 		result[i] = &commonpb.Payload{
 			Metadata: map[string][]byte{
-				"encoding": []byte("blobstore/plain"),
+				"encoding": []byte(MetadataEncodingBlobStorePlain),
 			},
 			Data: []byte(path),
 		}
@@ -78,7 +82,7 @@ func (c *BlobStoreCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Paylo
 	return result, nil
 }
 
-func (c *BlobStoreCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+func (c *ScopedCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
 		if string(p.Metadata["encoding"]) != "blobstore/plain" {
@@ -101,15 +105,16 @@ func (c *BlobStoreCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Paylo
 	return result, nil
 }
 
-func (c *Codec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+func (c *BaseCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	panic("unimplemented")
 }
 
 // Decode gets called from the starter on workflow completion
-func (c *Codec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
+func (c *BaseCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
-		if string(p.Metadata["encoding"]) != "blobstore/plain" {
+		if string(p.Metadata["encoding"]) != MetadataEncodingBlobStorePlain {
+			result[i] = p
 			continue
 		}
 
