@@ -21,12 +21,21 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 	logger := workflow.GetLogger(ctx)
 	logger.Info("workflow started", "name", name)
 
+	ctxVal, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues)
+	if !ok {
+		msg := "failed to find our propagated values in the context"
+		logger.Error(msg)
+		return "", fmt.Errorf(msg)
+	}
+	fmt.Printf("workflow ctx value: %+v\n", ctxVal)
+
 	info := map[string]string{
 		"name": name,
 	}
 
-	ctxVal := ctx.Value(PropagatedValuesKey)
-	fmt.Printf("workflow ctx value: %+v\n", ctxVal)
+	wfInfo := workflow.GetInfo(ctx)
+	ctxVal.BlobStorePathSegments = []string{ctxVal.TenantId, wfInfo.WorkflowType.Name, wfInfo.WorkflowExecution.ID}
+	ctx = workflow.WithValue(ctx, PropagatedValuesKey, ctxVal)
 
 	var result string
 	err := workflow.ExecuteActivity(ctx, Activity, info).Get(ctx, &result)

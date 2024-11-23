@@ -28,13 +28,13 @@ func NewBaseCodec(c *blobstore.Client) *BaseCodec {
 	}
 }
 
-// Encode needs to be implemented for codec-server support inputs from the CLI and UI
-// In its current implementation, it does not how/where to store the blobs
+// Encode In its current implementation is just a pass-through
+// It's called from the codec-server (UI/CLI) and unit tests to encode payloads
+// These sources DO NOT provide the propagationKey header
 func (c *BaseCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
 		result[i] = &commonpb.Payload{Metadata: p.Metadata, Data: p.Data}
-		return nil, fmt.Errorf(string(p.Metadata["encoding"]) + " encoding not implemented")
 	}
 
 	return result, nil

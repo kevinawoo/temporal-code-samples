@@ -30,7 +30,7 @@ func NewDataConverter(parent converter.DataConverter, client *blobstore.Client) 
 	}
 }
 
-// WithWorkflowContext will create a new DataConverter specifically for blob storage
+// WithWorkflowContext will create a CtxAwareCodec used to store payloads in blob storage
 // This is called from within the workflow
 func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.DataConverter {
 	if vals, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues); ok {
@@ -45,7 +45,7 @@ func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.Dat
 	return dc
 }
 
-// WithContext will create a new DataConverter specifically for blob storage
+// WithContext will create a CtxAwareCodec used to store payloads in blob storage
 // This is called from the starter when executing and during activities starting and completing
 func (dc *DataConverter) WithContext(ctx context.Context) converter.DataConverter {
 	if vals, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues); ok {

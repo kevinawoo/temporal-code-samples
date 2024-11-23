@@ -17,6 +17,12 @@ func NewClient() *Client {
 	}
 }
 
+func NewTestClient() *Client {
+	return &Client{
+		dir: "/tmp/temporal-sample/blob-store-data-converter/test-blobs",
+	}
+}
+
 func (b *Client) SaveBlob(ctx context.Context, key string, data []byte) error {
 	err := os.MkdirAll(b.dir, 0755)
 	if err != nil {

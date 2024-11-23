@@ -12,6 +12,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	bsClient := blobstore.NewClient()
 
 	// The client is a heavyweight object that should be created once per process.
@@ -31,13 +33,15 @@ func main() {
 	}
 	defer c.Close()
 
+	ctx = context.WithValue(ctx, bsdc.PropagatedValuesKey, bsdc.PropagatedValues{
+		TenantId:              "tenant1",
+		BlobStorePathSegments: []string{"tenant1", "starter"},
+	})
+
 	workflowOptions := client.StartWorkflowOptions{
-		ID:        "blobstore_codec_workflow",
+		ID:        "blobstore_codec_wfID",
 		TaskQueue: "blobstore_codec",
 	}
-
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, bsdc.PropagatedValuesKey, bsdc.NewPropagatedValues([]string{"org1", "tenant2"}))
 
 	we, err := c.ExecuteWorkflow(
 		ctx,
@@ -53,7 +57,7 @@ func main() {
 
 	// Synchronously wait for the workflow completion.
 	var result string
-	err = we.Get(context.Background(), &result)
+	err = we.Get(ctx, &result)
 	if err != nil {
 		log.Fatalln("Unable get workflow result", err)
 	}

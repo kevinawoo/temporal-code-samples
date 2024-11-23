@@ -10,30 +10,29 @@ import (
 type (
 	// contextKey is an unexported type used as key for items stored in the
 	// Context object
-	contextKey struct{}
+	contextKey int
 
 	// propagator implements the custom context propagator
 	propagator struct{}
 )
 
-// PropagatedValuesKey is the key used to store the value in the Context object
-var PropagatedValuesKey = contextKey{}
-
-// PropagatedValues is a struct holding values in the context
-// It must be json serializable
-type PropagatedValues struct {
-	BlobStorePathSegments []string `json:"bsPathSegs"`
-}
-
-func NewPropagatedValues(pathSegments []string) PropagatedValues {
-	return PropagatedValues{
-		BlobStorePathSegments: pathSegments,
-	}
-}
+const (
+	_                   contextKey = iota
+	PropagatedValuesKey            // The key used to store PropagatedValues in the context
+)
 
 // propagationKey is the key used by the propagator to pass values through the
-// Temporal server headers
+// Temporal Workflow Event History headers
 const propagationKey = "context-propagation"
+
+// PropagatedValues is the struct stored on the context under PropagatedValuesKey
+//
+// converter.GetDefaultDataConverter() converts this into a json string to be stored in the
+// Temporal Workflow Event History headers under propagationKey
+type PropagatedValues struct {
+	TenantId              string   `json:"tenantId,omitempty"`
+	BlobStorePathSegments []string `json:"bsPathSegs,omitempty"`
+}
 
 // NewContextPropagator returns a context propagator that propagates a set of
 // string key-value pairs across a workflow
@@ -66,26 +65,32 @@ func (s *propagator) InjectFromWorkflow(ctx workflow.Context, writer workflow.He
 
 // Extract extracts values from headers and puts them into context
 func (s *propagator) Extract(ctx context.Context, reader workflow.HeaderReader) (context.Context, error) {
-	if value, ok := reader.Get(propagationKey); ok {
-		var data PropagatedValues
-		if err := converter.GetDefaultDataConverter().FromPayload(value, &data); err != nil {
-			return ctx, fmt.Errorf("failed to extract value from header: %w", err)
-		}
-		ctx = context.WithValue(ctx, PropagatedValuesKey, data)
+	value, ok := reader.Get(propagationKey)
+	if !ok {
+		return ctx, fmt.Errorf("context propagation key not found in header: %s", propagationKey) // the header is missing from StartWorkflow in starter
 	}
+
+	var data PropagatedValues
+	if err := converter.GetDefaultDataConverter().FromPayload(value, &data); err != nil {
+		return ctx, fmt.Errorf("failed to extract value from header: %w", err)
+	}
+	ctx = context.WithValue(ctx, PropagatedValuesKey, data)
 
 	return ctx, nil
 }
 
 // ExtractToWorkflow extracts values from headers and puts them into context
 func (s *propagator) ExtractToWorkflow(ctx workflow.Context, reader workflow.HeaderReader) (workflow.Context, error) {
-	if value, ok := reader.Get(propagationKey); ok {
-		var data PropagatedValues
-		if err := converter.GetDefaultDataConverter().FromPayload(value, &data); err != nil {
-			return ctx, fmt.Errorf("failed to extract value from header: %w", err)
-		}
-		ctx = workflow.WithValue(ctx, PropagatedValuesKey, data)
+	value, ok := reader.Get(propagationKey)
+	if !ok {
+		return ctx, fmt.Errorf("context propagation key not found in header: %s", propagationKey) // the header is missing from StartWorkflow from UI/CLI
 	}
+
+	var data PropagatedValues
+	if err := converter.GetDefaultDataConverter().FromPayload(value, &data); err != nil {
+		return ctx, fmt.Errorf("failed to extract value from header: %w", err)
+	}
+	ctx = workflow.WithValue(ctx, PropagatedValuesKey, data)
 
 	return ctx, nil
 }

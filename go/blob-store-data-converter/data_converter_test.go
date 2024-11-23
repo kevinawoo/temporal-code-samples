@@ -13,26 +13,27 @@ func Test_DataConverter(t *testing.T) {
 	defaultDc := converter.GetDefaultDataConverter()
 
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, PropagatedValuesKey, NewPropagatedValues([]string{"org1", "tenant2"}))
+	ctx = context.WithValue(ctx, PropagatedValuesKey, PropagatedValues{
+		TenantId:              "t1",
+		BlobStorePathSegments: []string{"t1", "starter"},
+	})
 
-	db := blobstore.NewClient()
-
-	cryptDc := NewDataConverter(
+	blobDc := NewDataConverter(
 		converter.GetDefaultDataConverter(),
-		db,
+		blobstore.NewTestClient(),
 	)
-	cryptDcWc := cryptDc.WithContext(ctx)
+	blobDcCtx := blobDc.WithContext(ctx)
 
 	defaultPayloads, err := defaultDc.ToPayloads("Testing")
 	require.NoError(t, err)
 
-	encryptedPayloads, err := cryptDcWc.ToPayloads("Testing")
+	offloadedPayloads, err := blobDcCtx.ToPayloads("Testing")
 	require.NoError(t, err)
 
-	require.NotEqual(t, defaultPayloads.Payloads[0].GetData(), encryptedPayloads.Payloads[0].GetData())
+	require.NotEqual(t, defaultPayloads.Payloads[0].GetData(), offloadedPayloads.Payloads[0].GetData())
 
 	var result string
-	err = cryptDc.FromPayloads(encryptedPayloads, &result)
+	err = blobDc.FromPayloads(offloadedPayloads, &result)
 	require.NoError(t, err)
 
 	require.Equal(t, "Testing", result)
