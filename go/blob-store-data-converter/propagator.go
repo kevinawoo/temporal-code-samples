@@ -19,6 +19,8 @@ type (
 // PropagatedValuesKey is the key used to store the value in the Context object
 var PropagatedValuesKey = contextKey{}
 
+// PropagatedValues is a struct holding values in the context
+// It must be json serializable
 type PropagatedValues struct {
 	BlobStorePathSegments []string `json:"bsPathSegs"`
 }
