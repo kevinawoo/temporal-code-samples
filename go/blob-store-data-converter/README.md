@@ -5,8 +5,9 @@ It relies on the use of context propagation to pass the blobstore config metadat
 
 > [!CAUTION]
 > As of Temporal v1.25.2, the UI and CLI does not have the ability to set headers. This means that
-> Workflow Start, Signal, Queries, etc will not be able to encode the payloads. The UI is however still able to decode
-> with help of the codec-server.
+> Workflow Start, Signal, Queries, etc from the UI/CLI will not be able to encode the payloads. 
+>
+> The UI/CLI is still able to decode payloads using the codec server.
 
 Potential workarounds:
 - Do not use the UI or CLI to start, signal, or query workflows
