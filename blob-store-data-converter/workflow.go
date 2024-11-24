@@ -23,27 +23,23 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 
 	ctxVal, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues)
 	if !ok {
-		msg := "failed to find our propagated values in the context"
-		logger.Error(msg)
-		return "", fmt.Errorf(msg)
+		err := fmt.Errorf("failed to find our propagated values in the context")
+		logger.Error(err.Error())
+		return "", err
 	}
-	fmt.Printf("workflow ctx value: %+v\n", ctxVal)
+
+	fmt.Printf("workflow injected from starter ctx value: %+v\n", ctxVal)
+	wfInfo := workflow.GetInfo(ctx)
+	ctxVal.BlobNamePrefix = []string{wfInfo.WorkflowType.Name, wfInfo.WorkflowExecution.ID}
+	ctx = workflow.WithValue(ctx, PropagatedValuesKey, ctxVal)
+	fmt.Printf("workflow updated in workflow ctx value: %+v\n", ctxVal)
 
 	info := map[string]string{
 		"name": name,
 	}
 
-	wfInfo := workflow.GetInfo(ctx)
-	ctxVal.BlobStorePathSegments = []string{ctxVal.TenantId, wfInfo.WorkflowType.Name, wfInfo.WorkflowExecution.ID}
-	ctx = workflow.WithValue(ctx, PropagatedValuesKey, ctxVal)
-
 	var result string
 	err := workflow.ExecuteActivity(ctx, Activity, info).Get(ctx, &result)
-	if err != nil {
-		logger.Error("Activity failed.", "Error", err)
-		return "", err
-	}
-	err = workflow.ExecuteActivity(ctx, Activity, info).Get(ctx, &result)
 	if err != nil {
 		logger.Error("Activity failed.", "Error", err)
 		return "", err

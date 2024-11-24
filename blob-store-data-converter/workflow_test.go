@@ -24,8 +24,8 @@ func Test_Workflow(t *testing.T) {
 	)
 	env.SetDataConverter(dc)
 	p, err := dc.ToPayload(PropagatedValues{
-		TenantId:              "testTenant",
-		BlobStorePathSegments: []string{"testTenant", t.Name()},
+		TenantID:       "testTenant",
+		BlobNamePrefix: []string{"testTenant", t.Name()},
 	})
 	require.NoError(t, err)
 	env.SetHeader(&commonpb.Header{

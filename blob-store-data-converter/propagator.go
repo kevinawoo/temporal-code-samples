@@ -30,8 +30,8 @@ const propagationKey = "context-propagation"
 // converter.GetDefaultDataConverter() converts this into a json string to be stored in the
 // Temporal Workflow Event History headers under propagationKey
 type PropagatedValues struct {
-	TenantId              string   `json:"tenantId,omitempty"`
-	BlobStorePathSegments []string `json:"bsPathSegs,omitempty"`
+	TenantID       string   `json:"tenantID,omitempty"`
+	BlobNamePrefix []string `json:"bsPathSegs,omitempty"`
 }
 
 // NewContextPropagator returns a context propagator that propagates a set of
@@ -63,11 +63,19 @@ func (s *propagator) InjectFromWorkflow(ctx workflow.Context, writer workflow.He
 	return nil
 }
 
+// missingHeaderContextPropagationKeyError is an edge case that can happen when the UI/CLI is used
+// to start, signal, or query a workflow. It's up to the user to define this behavior.
+//
+// In this example, we just log the error and continue with a default value.
+// This allows UI/CLIs to send json payloads. This also protects our workflow from a missing value.
+var missingHeaderContextPropagationKeyError = fmt.Errorf("context propagation key not found in header: %s", propagationKey)
+
 // Extract extracts values from headers and puts them into context
 func (s *propagator) Extract(ctx context.Context, reader workflow.HeaderReader) (context.Context, error) {
 	value, ok := reader.Get(propagationKey)
 	if !ok {
-		return ctx, fmt.Errorf("context propagation key not found in header: %s", propagationKey) // the header is missing from StartWorkflow in starter
+		fmt.Println(missingHeaderContextPropagationKeyError)
+		return context.WithValue(ctx, PropagatedValuesKey, PropagatedValues{TenantID: "unknownTenant"}), nil
 	}
 
 	var data PropagatedValues
@@ -83,7 +91,8 @@ func (s *propagator) Extract(ctx context.Context, reader workflow.HeaderReader) 
 func (s *propagator) ExtractToWorkflow(ctx workflow.Context, reader workflow.HeaderReader) (workflow.Context, error) {
 	value, ok := reader.Get(propagationKey)
 	if !ok {
-		return ctx, fmt.Errorf("context propagation key not found in header: %s", propagationKey) // the header is missing from StartWorkflow from UI/CLI
+		fmt.Println(missingHeaderContextPropagationKeyError)
+		return workflow.WithValue(ctx, PropagatedValuesKey, PropagatedValues{TenantID: "unknownTenant"}), nil
 	}
 
 	var data PropagatedValues

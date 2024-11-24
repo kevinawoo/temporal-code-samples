@@ -12,25 +12,32 @@ import (
 
 const (
 	MetadataEncodingBlobStorePlain = "blobstore/plain"
+
+	// gRPC has a 4MB limit.
+	// To save some space for metadata, we should use a smaller limit.
+	//
+	// For this example however, we'll use much smaller payload limit as a proof of concept.
+	payloadSizeLimit = 33
 )
 
+// BaseCodec is not aware of where to store the blobs, however fetching blobs can be done without
+// knowing where to store the blog because we're passed the fully qualified path in the payload
+//
+// Prefer the use of CtxAwareCodec when possible.
 type BaseCodec struct {
 	client *blobstore.Client
 }
 
 var _ = converter.PayloadCodec(&BaseCodec{}) // Ensure that BaseCodec implements converter.PayloadCodec
 
-// NewBaseCodec is not aware of where to store the blobs
-// Prefer to use NewCtxAwareCodec when possible
 func NewBaseCodec(c *blobstore.Client) *BaseCodec {
 	return &BaseCodec{
 		client: c,
 	}
 }
 
-// Encode In its current implementation is just a pass-through
-// It's called from the codec-server (UI/CLI) and unit tests to encode payloads
-// These sources DO NOT provide the propagationKey header
+// Encode In its current implementation is just a pass-through to allow the UI/CLI
+// to send regular json payloads.
 func (c *BaseCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
@@ -40,7 +47,7 @@ func (c *BaseCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, e
 	return result, nil
 }
 
-// Decode does not need to be context aware because it can fetch the blobs via the payload path
+// Decode does not need to be context aware because it can fetch the blobs via a fully qualified object path
 func (c *BaseCodec) Decode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	return decode(context.Background(), c.client, payloads)
 }
@@ -49,7 +56,7 @@ func decode(ctx context.Context, client *blobstore.Client, payloads []*commonpb.
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
 		if string(p.Metadata["encoding"]) != MetadataEncodingBlobStorePlain {
-			result[i] = p
+			result[i] = &commonpb.Payload{Metadata: p.Metadata, Data: p.Data}
 			continue
 		}
 
@@ -69,10 +76,13 @@ func decode(ctx context.Context, client *blobstore.Client, payloads []*commonpb.
 	return result, nil
 }
 
+// CtxAwareCodec knows where to store the blobs from the PropagatedValues
+// Note, see readme for details on missing values
 type CtxAwareCodec struct {
 	ctx        context.Context // todo: it's bad practice to store context the struct, but this is a singleton, so maybe it's ok
 	client     *blobstore.Client
 	bucket     string
+	tenant     string
 	pathPrefix []string
 }
 
@@ -84,7 +94,8 @@ func NewCtxAwareCodec(ctx context.Context, c *blobstore.Client, values Propagate
 		ctx:        ctx,
 		client:     c,
 		bucket:     "blob://mybucket",
-		pathPrefix: values.BlobStorePathSegments,
+		tenant:     values.TenantID,
+		pathPrefix: values.BlobNamePrefix,
 	}
 }
 
@@ -92,14 +103,21 @@ func NewCtxAwareCodec(ctx context.Context, c *blobstore.Client, values Propagate
 func (c *CtxAwareCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, error) {
 	result := make([]*commonpb.Payload, len(payloads))
 	for i, p := range payloads {
+		// if the payload is small enough, just send it as is
+		fmt.Printf("payload len(%s): %d\n", string(p.Data), len(p.Data))
+		if len(p.Data) < payloadSizeLimit {
+			result[i] = &commonpb.Payload{Metadata: p.Metadata, Data: p.Data}
+			continue
+		}
+
 		origBytes, err := p.Marshal()
 		if err != nil {
 			return payloads, err
 		}
 
 		// save the data in our blob store db
-		objectName := strings.Join(c.pathPrefix[1:], "-") + "_" + uuid.New().String() // ensures each blob is unique
-		path := fmt.Sprintf("%s/%s/%s", c.bucket, c.pathPrefix[0], objectName)
+		objectName := strings.Join(c.pathPrefix, "_") + "__" + uuid.New().String() // ensures each blob is unique
+		path := fmt.Sprintf("%s/%s/%s", c.bucket, c.tenant, objectName)
 		err = c.client.SaveBlob(c.ctx, path, origBytes)
 		if err != nil {
 			return payloads, err

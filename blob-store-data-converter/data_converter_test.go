@@ -14,8 +14,8 @@ func Test_DataConverter(t *testing.T) {
 
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, PropagatedValuesKey, PropagatedValues{
-		TenantId:              "t1",
-		BlobStorePathSegments: []string{"t1", "starter"},
+		TenantID:       "t1",
+		BlobNamePrefix: []string{"t1", "starter"},
 	})
 
 	blobDc := NewDataConverter(

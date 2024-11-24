@@ -8,7 +8,6 @@ import (
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 	"log"
-	"time"
 )
 
 func main() {
@@ -32,7 +31,7 @@ func main() {
 	defer c.Close()
 
 	w := worker.New(c, "blobstore_codec", worker.Options{
-		MaxHeartbeatThrottleInterval: time.Second,
+		//MaxHeartbeatThrottleInterval: time.Second,
 	})
 
 	w.RegisterWorkflow(bsdc.Workflow)

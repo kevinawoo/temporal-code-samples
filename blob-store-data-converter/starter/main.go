@@ -4,6 +4,7 @@ import (
 	bsdc "blob-store-data-converter"
 	"blob-store-data-converter/blobstore"
 	"context"
+	"github.com/google/uuid"
 	"go.temporal.io/sdk/workflow"
 	"log"
 
@@ -34,12 +35,12 @@ func main() {
 	defer c.Close()
 
 	ctx = context.WithValue(ctx, bsdc.PropagatedValuesKey, bsdc.PropagatedValues{
-		TenantId:              "tenant1",
-		BlobStorePathSegments: []string{"tenant1", "starter"},
+		TenantID:       "tenant12",
+		BlobNamePrefix: []string{"starter"},
 	})
 
 	workflowOptions := client.StartWorkflowOptions{
-		ID:        "blobstore_codec_wfID",
+		ID:        "blobstore_codec_" + uuid.New().String(),
 		TaskQueue: "blobstore_codec",
 	}
 
@@ -53,7 +54,7 @@ func main() {
 		log.Fatalln("Unable to execute workflow", err)
 	}
 
-	log.Println("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
+	log.Println("Started workflow", "WorkflowID", we.GetID())
 
 	// Synchronously wait for the workflow completion.
 	var result string
