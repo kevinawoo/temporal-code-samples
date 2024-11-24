@@ -2,7 +2,7 @@
 This sample demonstrates how to use the DataConverter to store large payloads greater than a certain size 
 in a blobstore and passes the object path around in the Temporal Event History.
 
-The payload size limit is set [codec.go: `payloadSizeLimit`](./codec.go#L20)
+The payload size limit is set in [codec.go: `payloadSizeLimit`](./codec.go#L20).
 
 It relies on the use of context propagation to pass blobstore config metadata, like object path prefixes.
 
@@ -14,7 +14,7 @@ In this example, we prefix all object paths with a tenantID. There is an edge ca
 > worker will need handle a missing context propagation header.
 > 
 > In this sample when the header is missing, we use a default  `PropagatedValues{TenantID: "unknownTenant"}`, 
-> see [propagator.go: `missingHeaderContextPropagationKeyError`](./propagator.go#L66)
+> see [propagator.go: `missingHeaderContextPropagationKeyError`](./propagator.go#L66).
 > 
 > This allows this sample to still work with the UI/CLI. This might be fine depending on your requirements. 
 
