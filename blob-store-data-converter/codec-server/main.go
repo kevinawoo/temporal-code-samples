@@ -24,7 +24,7 @@ func main() {
 	// This example codec server does not support varying config per namespace,
 	// decoding for the Temporal Web UI or oauth.
 	// For a more complete example of a codec server please see the codec-server sample at:
-	// ../../codec-server.
+	// https://github.com/temporalio/samples-go/tree/main/codec-server
 	handler := converter.NewPayloadCodecHTTPHandler(
 		bsdc.NewBaseCodec(blobstore.NewClient()),
 	)
