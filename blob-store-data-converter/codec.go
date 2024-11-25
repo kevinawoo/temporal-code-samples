@@ -14,9 +14,9 @@ const (
 	MetadataEncodingBlobStorePlain = "blobstore/plain"
 
 	// gRPC has a 4MB limit.
-	// To save some space for metadata, we should use a smaller limit.
+	// To save some space for other metadata, we should maybe 80% or half that.
 	//
-	// For this example however, we'll use much smaller payload limit as a proof of concept.
+	// For this example however, we'll use much smaller limit as a proof of concept.
 	payloadSizeLimit = 33
 )
 
