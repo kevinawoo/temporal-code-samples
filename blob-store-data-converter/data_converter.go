@@ -39,7 +39,7 @@ func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.Dat
 			parent = parentWithContext.WithWorkflowContext(ctx)
 		}
 
-		return converter.NewCodecDataConverter(dc.parent, NewCtxAwareCodec(context.Background(), dc.client, vals))
+		return converter.NewCodecDataConverter(parent, NewCtxAwareCodec(context.Background(), dc.client, vals))
 	}
 
 	return dc
@@ -54,7 +54,7 @@ func (dc *DataConverter) WithContext(ctx context.Context) converter.DataConverte
 			parent = parentWithContext.WithContext(ctx)
 		}
 
-		return converter.NewCodecDataConverter(dc.parent, NewCtxAwareCodec(ctx, dc.client, vals))
+		return converter.NewCodecDataConverter(parent, NewCtxAwareCodec(ctx, dc.client, vals))
 	}
 
 	return dc
