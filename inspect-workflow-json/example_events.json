@@ -1,0 +1,901 @@
+{
+  "events": [
+    {
+      "eventId": "1",
+      "eventTime": "2024-11-27T19:42:55.640129Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_STARTED",
+      "taskId": "1048794",
+      "workflowExecutionStartedEventAttributes": {
+        "workflowType": {
+          "name": "Counter"
+        },
+        "taskQueue": {
+          "name": "update",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "workflowExecutionTimeout": "0s",
+        "workflowRunTimeout": "0s",
+        "workflowTaskTimeout": "10s",
+        "originalExecutionRunId": "7f9250d9-5a17-42c2-8c47-6437578d7b92",
+        "identity": "75568@wooTBook.local@",
+        "firstExecutionRunId": "7f9250d9-5a17-42c2-8c47-6437578d7b92",
+        "attempt": 1,
+        "firstWorkflowTaskBackoff": "0s",
+        "header": {},
+        "workflowId": "update-workflow-ID-2024-11-27T11:42:55-08:00"
+      }
+    },
+    {
+      "eventId": "2",
+      "eventTime": "2024-11-27T19:42:55.640201Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048795",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "update",
+          "kind": "TASK_QUEUE_KIND_NORMAL"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "3",
+      "eventTime": "2024-11-27T19:42:55.644171Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048800",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "2",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "991040a4-9470-42f8-9a21-38b48bb91815",
+        "historySizeBytes": "259",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "4",
+      "eventTime": "2024-11-27T19:42:55.649447Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048804",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "2",
+        "startedEventId": "3",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {
+          "langUsedFlags": [
+            3,
+            4
+          ],
+          "sdkName": "temporal-go",
+          "sdkVersion": "1.29.1"
+        },
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "5",
+      "eventTime": "2024-11-27T19:42:55.652200Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048811",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "6",
+      "eventTime": "2024-11-27T19:42:55.652951Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048812",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "5",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "c3b1dd2e-b78a-46f9-8828-d2e07f014b7b",
+        "historySizeBytes": "505",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "7",
+      "eventTime": "2024-11-27T19:42:55.655015Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048813",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "5",
+        "startedEventId": "6",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "8",
+      "eventTime": "2024-11-27T19:42:55.655069Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_ACCEPTED",
+      "taskId": "1048814",
+      "workflowExecutionUpdateAcceptedEventAttributes": {
+        "protocolInstanceId": "4884c9de-7316-482c-9bdf-8a107e882cb3",
+        "acceptedRequestMessageId": "4884c9de-7316-482c-9bdf-8a107e882cb3/request",
+        "acceptedRequestSequencingEventId": "5",
+        "acceptedRequest": {
+          "meta": {
+            "updateId": "4884c9de-7316-482c-9bdf-8a107e882cb3",
+            "identity": "75568@wooTBook.local@"
+          },
+          "input": {
+            "header": {},
+            "name": "fetch_and_add",
+            "args": {
+              "payloads": [
+                {
+                  "metadata": {
+                    "encoding": "anNvbi9wbGFpbg=="
+                  },
+                  "data": "MA=="
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "9",
+      "eventTime": "2024-11-27T19:42:55.655100Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_COMPLETED",
+      "taskId": "1048815",
+      "workflowExecutionUpdateCompletedEventAttributes": {
+        "meta": {
+          "updateId": "4884c9de-7316-482c-9bdf-8a107e882cb3"
+        },
+        "acceptedEventId": "8",
+        "outcome": {
+          "success": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "MA=="
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "eventId": "10",
+      "eventTime": "2024-11-27T19:42:55.657007Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048822",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "11",
+      "eventTime": "2024-11-27T19:42:55.657447Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048823",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "10",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "f8c6389d-ab96-446d-9a9c-6ffe698e41f7",
+        "historySizeBytes": "1155",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "12",
+      "eventTime": "2024-11-27T19:42:55.659867Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048824",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "10",
+        "startedEventId": "11",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "13",
+      "eventTime": "2024-11-27T19:42:55.661896Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048831",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "14",
+      "eventTime": "2024-11-27T19:42:55.662293Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048832",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "13",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "c313c160-6246-42d1-aefd-4d3bf0f5ec82",
+        "historySizeBytes": "1473",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "15",
+      "eventTime": "2024-11-27T19:42:55.664068Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048833",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "13",
+        "startedEventId": "14",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "16",
+      "eventTime": "2024-11-27T19:42:55.664123Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_ACCEPTED",
+      "taskId": "1048834",
+      "workflowExecutionUpdateAcceptedEventAttributes": {
+        "protocolInstanceId": "d7f32a93-f887-41d1-b037-3e7ce1d56110",
+        "acceptedRequestMessageId": "d7f32a93-f887-41d1-b037-3e7ce1d56110/request",
+        "acceptedRequestSequencingEventId": "13",
+        "acceptedRequest": {
+          "meta": {
+            "updateId": "d7f32a93-f887-41d1-b037-3e7ce1d56110",
+            "identity": "75568@wooTBook.local@"
+          },
+          "input": {
+            "header": {},
+            "name": "fetch_and_add",
+            "args": {
+              "payloads": [
+                {
+                  "metadata": {
+                    "encoding": "anNvbi9wbGFpbg=="
+                  },
+                  "data": "Mg=="
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "17",
+      "eventTime": "2024-11-27T19:42:55.664220Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_COMPLETED",
+      "taskId": "1048835",
+      "workflowExecutionUpdateCompletedEventAttributes": {
+        "meta": {
+          "updateId": "d7f32a93-f887-41d1-b037-3e7ce1d56110"
+        },
+        "acceptedEventId": "16",
+        "outcome": {
+          "success": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "MA=="
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "eventId": "18",
+      "eventTime": "2024-11-27T19:42:55.665777Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048842",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "19",
+      "eventTime": "2024-11-27T19:42:55.666409Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048843",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "18",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "15a4721c-bcf7-40fb-9151-ad819f066851",
+        "historySizeBytes": "2123",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "20",
+      "eventTime": "2024-11-27T19:42:55.668263Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048844",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "18",
+        "startedEventId": "19",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "21",
+      "eventTime": "2024-11-27T19:42:55.670264Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048851",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "22",
+      "eventTime": "2024-11-27T19:42:55.670770Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048852",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "21",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "3c187ee3-b138-454d-816c-90fe043f8c62",
+        "historySizeBytes": "2441",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "23",
+      "eventTime": "2024-11-27T19:42:55.673530Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048853",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "21",
+        "startedEventId": "22",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "24",
+      "eventTime": "2024-11-27T19:42:55.673587Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_ACCEPTED",
+      "taskId": "1048854",
+      "workflowExecutionUpdateAcceptedEventAttributes": {
+        "protocolInstanceId": "25021354-0025-4b10-9ce3-d43b61d45a5d",
+        "acceptedRequestMessageId": "25021354-0025-4b10-9ce3-d43b61d45a5d/request",
+        "acceptedRequestSequencingEventId": "21",
+        "acceptedRequest": {
+          "meta": {
+            "updateId": "25021354-0025-4b10-9ce3-d43b61d45a5d",
+            "identity": "75568@wooTBook.local@"
+          },
+          "input": {
+            "header": {},
+            "name": "fetch_and_add",
+            "args": {
+              "payloads": [
+                {
+                  "metadata": {
+                    "encoding": "anNvbi9wbGFpbg=="
+                  },
+                  "data": "NA=="
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "25",
+      "eventTime": "2024-11-27T19:42:55.673622Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_COMPLETED",
+      "taskId": "1048855",
+      "workflowExecutionUpdateCompletedEventAttributes": {
+        "meta": {
+          "updateId": "25021354-0025-4b10-9ce3-d43b61d45a5d"
+        },
+        "acceptedEventId": "24",
+        "outcome": {
+          "success": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "Mg=="
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "eventId": "26",
+      "eventTime": "2024-11-27T19:42:55.676181Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048862",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "27",
+      "eventTime": "2024-11-27T19:42:55.676882Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048863",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "26",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "d4125517-ab42-424d-8f4a-211a0242e609",
+        "historySizeBytes": "3091",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "28",
+      "eventTime": "2024-11-27T19:42:55.678934Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048864",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "26",
+        "startedEventId": "27",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "29",
+      "eventTime": "2024-11-27T19:42:55.681159Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048871",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "30",
+      "eventTime": "2024-11-27T19:42:55.681835Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048872",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "29",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "0bdf9351-0da4-4c58-bdc4-fddecc6f888e",
+        "historySizeBytes": "3409",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "31",
+      "eventTime": "2024-11-27T19:42:55.684278Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048873",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "29",
+        "startedEventId": "30",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "32",
+      "eventTime": "2024-11-27T19:42:55.684333Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_ACCEPTED",
+      "taskId": "1048874",
+      "workflowExecutionUpdateAcceptedEventAttributes": {
+        "protocolInstanceId": "0e421ba1-6ade-46b1-8a3d-293775951508",
+        "acceptedRequestMessageId": "0e421ba1-6ade-46b1-8a3d-293775951508/request",
+        "acceptedRequestSequencingEventId": "29",
+        "acceptedRequest": {
+          "meta": {
+            "updateId": "0e421ba1-6ade-46b1-8a3d-293775951508",
+            "identity": "75568@wooTBook.local@"
+          },
+          "input": {
+            "header": {},
+            "name": "fetch_and_add",
+            "args": {
+              "payloads": [
+                {
+                  "metadata": {
+                    "encoding": "anNvbi9wbGFpbg=="
+                  },
+                  "data": "Ng=="
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "33",
+      "eventTime": "2024-11-27T19:42:55.684366Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_COMPLETED",
+      "taskId": "1048875",
+      "workflowExecutionUpdateCompletedEventAttributes": {
+        "meta": {
+          "updateId": "0e421ba1-6ade-46b1-8a3d-293775951508"
+        },
+        "acceptedEventId": "32",
+        "outcome": {
+          "success": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "Ng=="
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "eventId": "34",
+      "eventTime": "2024-11-27T19:42:55.685964Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048882",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "35",
+      "eventTime": "2024-11-27T19:42:55.686462Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048883",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "34",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "6fda6c4e-ffc9-4c85-b240-b5c6f690a4f7",
+        "historySizeBytes": "4059",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "36",
+      "eventTime": "2024-11-27T19:42:55.689068Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048884",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "34",
+        "startedEventId": "35",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "37",
+      "eventTime": "2024-11-27T19:42:55.690737Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048891",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "38",
+      "eventTime": "2024-11-27T19:42:55.691456Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048892",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "37",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "fbbe4685-74fc-4478-b1c1-888ba249d6d4",
+        "historySizeBytes": "4377",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "39",
+      "eventTime": "2024-11-27T19:42:55.693280Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048893",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "37",
+        "startedEventId": "38",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "40",
+      "eventTime": "2024-11-27T19:42:55.693359Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_ACCEPTED",
+      "taskId": "1048894",
+      "workflowExecutionUpdateAcceptedEventAttributes": {
+        "protocolInstanceId": "6e09ec8e-6442-403c-bc13-2ba19b20fef6",
+        "acceptedRequestMessageId": "6e09ec8e-6442-403c-bc13-2ba19b20fef6/request",
+        "acceptedRequestSequencingEventId": "37",
+        "acceptedRequest": {
+          "meta": {
+            "updateId": "6e09ec8e-6442-403c-bc13-2ba19b20fef6",
+            "identity": "75568@wooTBook.local@"
+          },
+          "input": {
+            "header": {},
+            "name": "fetch_and_add",
+            "args": {
+              "payloads": [
+                {
+                  "metadata": {
+                    "encoding": "anNvbi9wbGFpbg=="
+                  },
+                  "data": "OA=="
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "eventId": "41",
+      "eventTime": "2024-11-27T19:42:55.693404Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_UPDATE_COMPLETED",
+      "taskId": "1048895",
+      "workflowExecutionUpdateCompletedEventAttributes": {
+        "meta": {
+          "updateId": "6e09ec8e-6442-403c-bc13-2ba19b20fef6"
+        },
+        "acceptedEventId": "40",
+        "outcome": {
+          "success": {
+            "payloads": [
+              {
+                "metadata": {
+                  "encoding": "anNvbi9wbGFpbg=="
+                },
+                "data": "MTI="
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "eventId": "42",
+      "eventTime": "2024-11-27T19:42:55.694837Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048902",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "43",
+      "eventTime": "2024-11-27T19:42:55.695132Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048903",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "42",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "cc2123bc-326f-40b0-bc7f-d15694549a1b",
+        "historySizeBytes": "5028",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "44",
+      "eventTime": "2024-11-27T19:42:55.696355Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048904",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "42",
+        "startedEventId": "43",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "45",
+      "eventTime": "2024-11-27T19:42:55.698150Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_SIGNALED",
+      "taskId": "1048907",
+      "workflowExecutionSignaledEventAttributes": {
+        "signalName": "done",
+        "input": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "YmluYXJ5L251bGw="
+              }
+            }
+          ]
+        },
+        "identity": "75568@wooTBook.local@",
+        "header": {}
+      }
+    },
+    {
+      "eventId": "46",
+      "eventTime": "2024-11-27T19:42:55.698153Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_SCHEDULED",
+      "taskId": "1048908",
+      "workflowTaskScheduledEventAttributes": {
+        "taskQueue": {
+          "name": "wooTBook.local:0bdcdd21-de40-4bfd-ab60-87ce57102bbb",
+          "kind": "TASK_QUEUE_KIND_STICKY",
+          "normalName": "update"
+        },
+        "startToCloseTimeout": "10s",
+        "attempt": 1
+      }
+    },
+    {
+      "eventId": "47",
+      "eventTime": "2024-11-27T19:42:55.699120Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_STARTED",
+      "taskId": "1048912",
+      "workflowTaskStartedEventAttributes": {
+        "scheduledEventId": "46",
+        "identity": "75325@wooTBook.local@",
+        "requestId": "1bfcf116-7008-4b85-b480-1fff649a83f9",
+        "historySizeBytes": "5530",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        }
+      }
+    },
+    {
+      "eventId": "48",
+      "eventTime": "2024-11-27T19:42:55.700654Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_TASK_COMPLETED",
+      "taskId": "1048916",
+      "workflowTaskCompletedEventAttributes": {
+        "scheduledEventId": "46",
+        "startedEventId": "47",
+        "identity": "75325@wooTBook.local@",
+        "workerVersion": {
+          "buildId": "8ef824f1ebe01ccefc4928af8bd30c4d"
+        },
+        "sdkMetadata": {},
+        "meteringMetadata": {}
+      }
+    },
+    {
+      "eventId": "49",
+      "eventTime": "2024-11-27T19:42:55.700671Z",
+      "eventType": "EVENT_TYPE_WORKFLOW_EXECUTION_COMPLETED",
+      "taskId": "1048917",
+      "workflowExecutionCompletedEventAttributes": {
+        "result": {
+          "payloads": [
+            {
+              "metadata": {
+                "encoding": "anNvbi9wbGFpbg=="
+              },
+              "data": "MjA="
+            }
+          ]
+        },
+        "workflowTaskCompletedEventId": "48"
+      }
+    }
+  ]
+}
