@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"go.temporal.io/sdk/workflow"
 	"log"
+	"time"
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
@@ -40,8 +41,9 @@ func main() {
 	})
 
 	workflowOptions := client.StartWorkflowOptions{
-		ID:        "blobstore_codec_" + uuid.New().String(),
-		TaskQueue: "blobstore_codec",
+		ID:                  "blobstore_codec_" + uuid.New().String(),
+		TaskQueue:           "blobstore_codec",
+		WorkflowTaskTimeout: 10 * time.Second, // encoding/decoding time counts towards this timeout
 	}
 
 	we, err := c.ExecuteWorkflow(

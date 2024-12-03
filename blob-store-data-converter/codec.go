@@ -8,15 +8,16 @@ import (
 	commonpb "go.temporal.io/api/common/v1"
 	"go.temporal.io/sdk/converter"
 	"strings"
+	"time"
 )
 
 const (
 	MetadataEncodingBlobStorePlain = "blobstore/plain"
 
 	// gRPC has a 4MB limit.
-	// To save some space for other metadata, we should maybe 80% or half that.
+	// To save some space for other metadata, we should stay around half that.
 	//
-	// For this example however, we'll use much smaller limit as a proof of concept.
+	// For this example, as a proof of concept, we'll use much smaller size limit.
 	payloadSizeLimit = 33
 )
 
@@ -43,6 +44,8 @@ func (c *BaseCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payload, e
 	for i, p := range payloads {
 		result[i] = &commonpb.Payload{Metadata: p.Metadata, Data: p.Data}
 	}
+
+	time.Sleep(1 * time.Second) // simulate network latency
 
 	return result, nil
 }
@@ -72,6 +75,8 @@ func decode(ctx context.Context, client *blobstore.Client, payloads []*commonpb.
 			return payloads, err
 		}
 	}
+
+	time.Sleep(1 * time.Second) // simulate network latency
 
 	return result, nil
 }
@@ -130,6 +135,8 @@ func (c *CtxAwareCodec) Encode(payloads []*commonpb.Payload) ([]*commonpb.Payloa
 			Data: []byte(path),
 		}
 	}
+
+	time.Sleep(1 * time.Second) // simulate network latency
 
 	return result, nil
 }

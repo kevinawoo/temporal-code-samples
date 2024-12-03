@@ -15,10 +15,12 @@ func main() {
 
 	// The client and worker are heavyweight objects that should be created once per process.
 	c, err := client.Dial(client.Options{
-		DataConverter: bsdc.NewDataConverter(
+		// Calls to the blob store will probably be a network call with inherent latency, this may trigger deadlock detection
+		DataConverter: workflow.DataConverterWithoutDeadlockDetection(bsdc.NewDataConverter(
 			converter.GetDefaultDataConverter(),
 			bsClient,
-		),
+		)),
+
 		// Use a ContextPropagator so that the KeyID value set in the workflow context is
 		// also available in the context for activities.
 		ContextPropagators: []workflow.ContextPropagator{
@@ -30,9 +32,7 @@ func main() {
 	}
 	defer c.Close()
 
-	w := worker.New(c, "blobstore_codec", worker.Options{
-		//MaxHeartbeatThrottleInterval: time.Second,
-	})
+	w := worker.New(c, "blobstore_codec", worker.Options{})
 
 	w.RegisterWorkflow(bsdc.Workflow)
 	w.RegisterActivity(bsdc.Activity)

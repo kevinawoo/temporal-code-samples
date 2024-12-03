@@ -4,6 +4,7 @@ import (
 	bsdc "blob-store-data-converter"
 	"blob-store-data-converter/blobstore"
 	"flag"
+	"fmt"
 	"go.temporal.io/sdk/converter"
 	"log"
 	"net/http"
@@ -13,9 +14,11 @@ import (
 )
 
 var portFlag int
+var web string
 
 func init() {
-	flag.IntVar(&portFlag, "port", 8081, "Port to listen on")
+	flag.IntVar(&portFlag, "port", 8082, "Port to listen on")
+	flag.StringVar(&web, "web", "http://localhost:8233", "Temporal UI URL")
 }
 
 func main() {
@@ -35,7 +38,10 @@ func main() {
 	}
 
 	errCh := make(chan error, 1)
-	go func() { errCh <- srv.ListenAndServe() }()
+	go func() {
+		fmt.Printf("Listening on http://%s/\n", srv.Addr)
+		errCh <- srv.ListenAndServe()
+	}()
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt)
@@ -51,9 +57,9 @@ func main() {
 // newCORSHTTPHandler wraps a HTTP handler with CORS support
 func newCORSHTTPHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8233")
+		w.Header().Set("Access-Control-Allow-Origin", web)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization,Content-Type,X-Namespace")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization,Content-Type,X-Namespace,X-CSRF-Token,Caller-Type")
 
 		if r.Method == "OPTIONS" {
 			return
