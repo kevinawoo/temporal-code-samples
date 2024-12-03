@@ -34,6 +34,14 @@ type PropagatedValues struct {
 	BlobNamePrefix []string `json:"bsPathSegs,omitempty"`
 }
 
+// UnknownTenant returns a PropagatedValues struct with a default values
+// This happens in edge cases where the tenantID is not set in the context
+func UnknownTenant() PropagatedValues {
+	return PropagatedValues{
+		TenantID: "unknown-tenant",
+	}
+}
+
 // NewContextPropagator returns a context propagator that propagates a set of
 // string key-value pairs across a workflow
 func NewContextPropagator() workflow.ContextPropagator {
@@ -63,19 +71,19 @@ func (s *propagator) InjectFromWorkflow(ctx workflow.Context, writer workflow.He
 	return nil
 }
 
-// missingHeaderContextPropagationKeyError is an edge case that can happen when the UI/CLI is used
+// errMissingHeaderContextPropagationKey is an edge case that can happen when the UI/CLI is used
 // to start, signal, or query a workflow. It's up to the user to define this behavior.
 //
 // In this example, we just log the error and continue with a default value.
-// This allows UI/CLIs to send json payloads. This also protects our workflow from a missing value.
-var missingHeaderContextPropagationKeyError = fmt.Errorf("context propagation key not found in header: %s", propagationKey)
+// This allows UI/CLIs to send json payloads. This also protects the workflow from failing to find the missing ctx key.
+var errMissingHeaderContextPropagationKey = fmt.Errorf("context propagation key not found in header: %s", propagationKey)
 
 // Extract extracts values from headers and puts them into context
 func (s *propagator) Extract(ctx context.Context, reader workflow.HeaderReader) (context.Context, error) {
 	value, ok := reader.Get(propagationKey)
 	if !ok {
-		fmt.Println(missingHeaderContextPropagationKeyError)
-		return context.WithValue(ctx, PropagatedValuesKey, PropagatedValues{TenantID: "unknownTenant"}), nil
+		fmt.Println(errMissingHeaderContextPropagationKey)
+		return context.WithValue(ctx, PropagatedValuesKey, UnknownTenant()), nil
 	}
 
 	var data PropagatedValues
@@ -91,8 +99,8 @@ func (s *propagator) Extract(ctx context.Context, reader workflow.HeaderReader) 
 func (s *propagator) ExtractToWorkflow(ctx workflow.Context, reader workflow.HeaderReader) (workflow.Context, error) {
 	value, ok := reader.Get(propagationKey)
 	if !ok {
-		fmt.Println(missingHeaderContextPropagationKeyError)
-		return workflow.WithValue(ctx, PropagatedValuesKey, PropagatedValues{TenantID: "unknownTenant"}), nil
+		fmt.Println(errMissingHeaderContextPropagationKey)
+		return workflow.WithValue(ctx, PropagatedValuesKey, UnknownTenant()), nil
 	}
 
 	var data PropagatedValues

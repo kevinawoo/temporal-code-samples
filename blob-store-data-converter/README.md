@@ -17,7 +17,7 @@ In this example, we prefix all object paths with a `tenantID` to better object l
 > This means that Workflow Start, Signal, Queries, etc. from the UI/CLI will pass payloads to the codec-server but the 
 > worker needs to handle a missing context propagation header.
 > 
-> In this sample when the header is missing, we use a default of `PropagatedValues{TenantID: "unknownTenant"}`,
+> In this sample when the header is missing, we use a default of `DefaultPropagatedValues()`,
 > see [propagator.go: `missingHeaderContextPropagationKeyError`](./propagator.go#L66).
 > 
 > This allows this sample to still work with the UI/CLI. This maybe not suitable depending on your requirements. 

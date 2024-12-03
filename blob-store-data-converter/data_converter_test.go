@@ -1,8 +1,8 @@
 package blobstore_data_converter
 
 import (
-	"blob-store-data-converter/blobstore"
 	"context"
+	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -24,17 +24,20 @@ func Test_DataConverter(t *testing.T) {
 	)
 	blobDcCtx := blobDc.WithContext(ctx)
 
-	defaultPayloads, err := defaultDc.ToPayloads("Testing")
+	defaultPayloads, err := defaultDc.ToPayloads("small payload")
 	require.NoError(t, err)
+	require.Equal(t, string(defaultPayloads.Payloads[0].GetData()), `"small payload"`)
 
-	offloadedPayloads, err := blobDcCtx.ToPayloads("Testing")
+	const largePayload = "really really really large giant payload"
+	require.Greater(t, len([]byte(largePayload)), payloadSizeLimit, "payload size should be larger than the limit in the example")
+
+	offloadedPayloads, err := blobDcCtx.ToPayloads(largePayload)
 	require.NoError(t, err)
-
-	require.NotEqual(t, defaultPayloads.Payloads[0].GetData(), offloadedPayloads.Payloads[0].GetData())
+	require.Contains(t, string(offloadedPayloads.Payloads[0].GetData()), "blob://")
 
 	var result string
 	err = blobDc.FromPayloads(offloadedPayloads, &result)
 	require.NoError(t, err)
 
-	require.Equal(t, "Testing", result)
+	require.Equal(t, largePayload, result)
 }

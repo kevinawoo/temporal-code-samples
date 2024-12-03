@@ -1,7 +1,6 @@
 package blobstore_data_converter
 
 import (
-	"blob-store-data-converter/blobstore"
 	"github.com/stretchr/testify/mock"
 	commonpb "go.temporal.io/api/common/v1"
 	"go.temporal.io/sdk/converter"
@@ -18,22 +17,20 @@ func Test_Workflow(t *testing.T) {
 
 	// Set up the environment with the expected context propagators and data converter
 	env.SetContextPropagators([]workflow.ContextPropagator{NewContextPropagator()})
-	dc := NewDataConverter(
-		converter.GetDefaultDataConverter(),
-		blobstore.NewTestClient(),
-	)
-	env.SetDataConverter(dc)
-	p, err := dc.ToPayload(PropagatedValues{
-		TenantID:       "testTenant",
-		BlobNamePrefix: []string{"testTenant", t.Name()},
+	headerDC := converter.GetDefaultDataConverter()
+	p, err := headerDC.ToPayload(PropagatedValues{
+		TenantID:       "test-tenant",
+		BlobNamePrefix: []string{t.Name()},
 	})
 	require.NoError(t, err)
 	env.SetHeader(&commonpb.Header{
-		Fields: map[string]*commonpb.Payload{propagationKey: p},
+		Fields: map[string]*commonpb.Payload{
+			propagationKey: p,
+		},
 	})
 
 	// Mock activity implementation
-	env.OnActivity(Activity, mock.Anything, mock.Anything).Return("Hello Temporal!", nil)
+	env.OnActivity(Activity, mock.Anything, mock.Anything).Return("Hello From TestActivity!", nil)
 
 	env.ExecuteWorkflow(Workflow, "Temporal")
 
@@ -41,5 +38,5 @@ func Test_Workflow(t *testing.T) {
 	require.NoError(t, env.GetWorkflowError())
 	var result string
 	require.NoError(t, env.GetWorkflowResult(&result))
-	require.Equal(t, "Workflow: Hello Temporal!", result)
+	require.Equal(t, "WorkflowSays: Hello From TestActivity!", result)
 }

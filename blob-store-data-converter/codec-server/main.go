@@ -1,10 +1,10 @@
 package main
 
 import (
-	bsdc "blob-store-data-converter"
-	"blob-store-data-converter/blobstore"
 	"flag"
 	"fmt"
+	bsdc "github.com/temporalio/samples-go/blob-store-data-converter"
+	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
 	"go.temporal.io/sdk/converter"
 	"log"
 	"net/http"
@@ -29,16 +29,18 @@ func main() {
 	// For a more complete example of a codec server please see the codec-server sample at:
 	// https://github.com/temporalio/samples-go/tree/main/codec-server
 	handler := converter.NewPayloadCodecHTTPHandler(
-		bsdc.NewBaseCodec(blobstore.NewClient()),
+		//bsdc.NewBaseCodec(blobstore.NewClient()),
+		bsdc.NewBlobCodec(blobstore.NewClient(), bsdc.PropagatedValues{}),
 	)
 
 	srv := &http.Server{
-		Addr:    "0.0.0.0:" + strconv.Itoa(portFlag),
+		Addr:    "localhost:" + strconv.Itoa(portFlag),
 		Handler: newCORSHTTPHandler(handler),
 	}
 
 	errCh := make(chan error, 1)
 	go func() {
+		fmt.Printf("allowing CORS Headers for %s\n", web)
 		fmt.Printf("Listening on http://%s/\n", srv.Addr)
 		errCh <- srv.ListenAndServe()
 	}()

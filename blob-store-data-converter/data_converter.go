@@ -1,8 +1,8 @@
 package blobstore_data_converter
 
 import (
-	"blob-store-data-converter/blobstore"
 	"context"
+	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/workflow"
 )
@@ -20,7 +20,7 @@ var _ = workflow.ContextAware(&DataConverter{}) // Ensure that DataConverter imp
 // NewDataConverter returns DataConverter, which embeds converter.DataConverter
 func NewDataConverter(parent converter.DataConverter, client *blobstore.Client) *DataConverter {
 	next := []converter.PayloadCodec{
-		NewBaseCodec(client),
+		NewBlobCodec(client, UnknownTenant()),
 	}
 
 	return &DataConverter{
@@ -30,23 +30,11 @@ func NewDataConverter(parent converter.DataConverter, client *blobstore.Client) 
 	}
 }
 
-// WithWorkflowContext will create a CtxAwareCodec used to store payloads in blob storage
-// This is called from within the workflow
-func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.DataConverter {
-	if vals, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues); ok {
-		parent := dc.parent
-		if parentWithContext, ok := parent.(workflow.ContextAware); ok {
-			parent = parentWithContext.WithWorkflowContext(ctx)
-		}
-
-		return converter.NewCodecDataConverter(parent, NewCtxAwareCodec(context.Background(), dc.client, vals))
-	}
-
-	return dc
-}
-
-// WithContext will create a CtxAwareCodec used to store payloads in blob storage
-// This is called from the starter when executing and during activities starting and completing
+// WithContext will create a BlobCodec used to store and retrieve payloads from the blob storage
+//
+// This is called when payloads needs to be passed between the Clients/Activity and the Temporal Server. e.g.
+// - From starter to encode/decode Workflow Input and Result
+// - For each Activity to encode/decode it's Input and Result
 func (dc *DataConverter) WithContext(ctx context.Context) converter.DataConverter {
 	if vals, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues); ok {
 		parent := dc.parent
@@ -54,7 +42,23 @@ func (dc *DataConverter) WithContext(ctx context.Context) converter.DataConverte
 			parent = parentWithContext.WithContext(ctx)
 		}
 
-		return converter.NewCodecDataConverter(parent, NewCtxAwareCodec(ctx, dc.client, vals))
+		return converter.NewCodecDataConverter(parent, NewBlobCodec(dc.client, vals))
+	}
+
+	return dc
+}
+
+// WithWorkflowContext will create a BlobCodec used to store payloads in blob storage
+//
+// This is called inside the Workflow to decode/encode the Workflow Input and Result
+func (dc *DataConverter) WithWorkflowContext(ctx workflow.Context) converter.DataConverter {
+	if vals, ok := ctx.Value(PropagatedValuesKey).(PropagatedValues); ok {
+		parent := dc.parent
+		if parentWithContext, ok := parent.(workflow.ContextAware); ok {
+			parent = parentWithContext.WithWorkflowContext(ctx)
+		}
+
+		return converter.NewCodecDataConverter(parent, NewBlobCodec(dc.client, vals))
 	}
 
 	return dc

@@ -1,10 +1,10 @@
 package main
 
 import (
-	bsdc "blob-store-data-converter"
-	"blob-store-data-converter/blobstore"
 	"context"
-	"github.com/google/uuid"
+	bsdc "github.com/temporalio/samples-go/blob-store-data-converter"
+	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
+	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/workflow"
 	"log"
 	"time"
@@ -41,16 +41,17 @@ func main() {
 	})
 
 	workflowOptions := client.StartWorkflowOptions{
-		ID:                  "blobstore_codec_" + uuid.New().String(),
-		TaskQueue:           "blobstore_codec",
-		WorkflowTaskTimeout: 10 * time.Second, // encoding/decoding time counts towards this timeout
+		ID:                       "blobstore_codec",
+		TaskQueue:                "blobstore_codec",
+		WorkflowTaskTimeout:      10 * time.Second, // encoding/decoding time counts towards this timeout
+		WorkflowIDConflictPolicy: enums.WORKFLOW_ID_CONFLICT_POLICY_TERMINATE_EXISTING,
 	}
 
 	we, err := c.ExecuteWorkflow(
 		ctx,
 		workflowOptions,
 		bsdc.Workflow,
-		"Starter: big big blob",
+		"StarterSays: big big blob",
 	)
 	if err != nil {
 		log.Fatalln("Unable to execute workflow", err)

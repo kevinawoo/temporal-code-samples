@@ -45,7 +45,7 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 		return "", err
 	}
 
-	result = "Workflow: " + result
+	result = "WorkflowSays: " + result
 	fmt.Println("workflow completed.", "result", result)
 
 	return result, nil
@@ -63,5 +63,5 @@ func Activity(ctx context.Context, info map[string]string) (string, error) {
 		name = "someone"
 	}
 
-	return "Activity: " + name + "!", nil
+	return "ActivitySays: " + name + "!", nil
 }
