@@ -1,9 +1,9 @@
 package blobstore_data_converter
 
 import (
+	"blob-store-data-converter/blobstore"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
 	commonpb "go.temporal.io/api/common/v1"
 	"go.temporal.io/sdk/converter"
 	"strings"

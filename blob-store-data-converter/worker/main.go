@@ -1,8 +1,8 @@
 package main
 
 import (
-	bsdc "github.com/temporalio/samples-go/blob-store-data-converter"
-	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
+	bsdc "blob-store-data-converter"
+	"blob-store-data-converter/blobstore"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/worker"

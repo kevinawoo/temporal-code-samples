@@ -1,8 +1,8 @@
 package blobstore_data_converter
 
 import (
+	"blob-store-data-converter/blobstore"
 	"context"
-	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/workflow"
 )

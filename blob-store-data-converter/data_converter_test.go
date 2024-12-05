@@ -1,8 +1,8 @@
 package blobstore_data_converter
 
 import (
+	"blob-store-data-converter/blobstore"
 	"context"
-	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
 	"testing"
 
 	"github.com/stretchr/testify/require"

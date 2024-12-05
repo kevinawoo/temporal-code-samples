@@ -1,10 +1,10 @@
 package main
 
 import (
+	bsdc "blob-store-data-converter"
+	"blob-store-data-converter/blobstore"
 	"flag"
 	"fmt"
-	bsdc "github.com/temporalio/samples-go/blob-store-data-converter"
-	"github.com/temporalio/samples-go/blob-store-data-converter/blobstore"
 	"go.temporal.io/sdk/converter"
 	"log"
 	"net/http"
