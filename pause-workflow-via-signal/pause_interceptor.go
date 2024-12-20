@@ -24,15 +24,15 @@ func NewPauseInterceptor() *PauseInterceptor {
 type PauseInterceptor struct {
 	interceptor.WorkerInterceptorBase
 
-	Paused bool
+	paused bool
 }
 
 // InterceptWorkflow is between Starter > TemporalServer > * > start execution of a Workflow
 // This handles the case when the workflow is started in a paused state
 func (pi *PauseInterceptor) InterceptWorkflow(ctx workflow.Context, next interceptor.WorkflowInboundInterceptor) interceptor.WorkflowInboundInterceptor {
 	attr := workflow.GetTypedSearchAttributes(ctx)
-	pi.Paused, _ = attr.GetBool(PauseSearchAttrKey)
-	fmt.Println("InterceptWorkflow, paused?", pi.Paused)
+	pi.paused, _ = attr.GetBool(PauseSearchAttrKey)
+	fmt.Println("InterceptWorkflow, paused?", pi.paused)
 
 	return &wfInbound{
 		WorkflowInboundInterceptorBase: interceptor.WorkflowInboundInterceptorBase{Next: next},
@@ -41,12 +41,12 @@ func (pi *PauseInterceptor) InterceptWorkflow(ctx workflow.Context, next interce
 }
 
 func (pi *PauseInterceptor) handlePause(ctx workflow.Context) {
-	err := workflow.UpsertTypedSearchAttributes(ctx, PauseSearchAttrKey.ValueSet(pi.Paused))
+	err := workflow.UpsertTypedSearchAttributes(ctx, PauseSearchAttrKey.ValueSet(pi.paused))
 	if err != nil {
 		panic(fmt.Errorf("failed to pause workflow: %w", err))
 	}
 
-	if pi.Paused {
+	if pi.paused {
 		selector := workflow.NewSelector(ctx)
 		selector.AddReceive(workflow.GetSignalChannel(ctx, ResumeSignalName), func(c workflow.ReceiveChannel, more bool) {
 			c.Receive(ctx, nil)
@@ -80,9 +80,9 @@ func (i *wfInbound) HandleSignal(ctx workflow.Context, in *interceptor.HandleSig
 
 	switch in.SignalName {
 	case PauseSignalName:
-		i.pi.Paused = true
+		i.pi.paused = true
 	case ResumeSignalName:
-		i.pi.Paused = false
+		i.pi.paused = false
 	}
 
 	return i.Next.HandleSignal(ctx, in)
@@ -100,25 +100,25 @@ var _ interceptor.WorkflowOutboundInterceptor = (*wfOutbound)(nil) // ensure int
 //
 // You'll also want to consider which other sdk calls you may want intercept to pause.
 func (i *wfOutbound) ExecuteActivity(ctx workflow.Context, activityType string, args ...any) workflow.Future {
-	fmt.Println("ExecuteActivity interceptor, paused?", i.pi.Paused)
+	fmt.Println("ExecuteActivity interceptor, paused?", i.pi.paused)
 	i.pi.handlePause(ctx)
 	return i.Next.ExecuteActivity(ctx, activityType, args...)
 }
 
 func (i *wfOutbound) ExecuteLocalActivity(ctx workflow.Context, activityType string, args ...interface{}) workflow.Future {
-	fmt.Println("ExecuteLocalActivity interceptor, paused?", i.pi.Paused)
+	fmt.Println("ExecuteLocalActivity interceptor, paused?", i.pi.paused)
 	i.pi.handlePause(ctx)
 	return i.Next.ExecuteLocalActivity(ctx, activityType, args...)
 }
 
 func (i *wfOutbound) ExecuteChildWorkflow(ctx workflow.Context, childWorkflowType string, args ...interface{}) workflow.ChildWorkflowFuture {
-	fmt.Println("ExecuteChildWorkflow interceptor, paused?", i.pi.Paused)
+	fmt.Println("ExecuteChildWorkflow interceptor, paused?", i.pi.paused)
 	i.pi.handlePause(ctx)
 	return i.Next.ExecuteChildWorkflow(ctx, childWorkflowType, args...)
 }
 
 func (i *wfOutbound) ExecuteNexusOperation(ctx workflow.Context, input interceptor.ExecuteNexusOperationInput) workflow.NexusOperationFuture {
-	fmt.Println("ExecuteNexusOperation interceptor, paused?", i.pi.Paused)
+	fmt.Println("ExecuteNexusOperation interceptor, paused?", i.pi.paused)
 	i.pi.handlePause(ctx)
 	return i.Next.ExecuteNexusOperation(ctx, input)
 }
