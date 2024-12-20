@@ -11,7 +11,7 @@ import (
 // Workflow allows pausing of Activities via a signal
 func Workflow(ctx workflow.Context, name string) (string, error) {
 	// normally we'd use a logger so that replay doesn't spam the console
-	// but in this case, we want to see how interceptors work with replay
+	// but in this case, we'll want to see how interceptors work during replay
 	logger := workflow.GetLogger(ctx)
 	_ = logger
 

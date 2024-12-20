@@ -35,8 +35,8 @@ func (pi *PauseInterceptor) InterceptWorkflow(ctx workflow.Context, next interce
 	fmt.Println("InterceptWorkflow, paused?", pi.Paused)
 
 	return &wfInbound{
-		pi:                             pi,
 		WorkflowInboundInterceptorBase: interceptor.WorkflowInboundInterceptorBase{Next: next},
+		pi:                             pi,
 	}
 }
 
@@ -66,8 +66,8 @@ var _ interceptor.WorkflowInboundInterceptor = (*wfInbound)(nil) // ensure inter
 
 func (i *wfInbound) Init(outbound interceptor.WorkflowOutboundInterceptor) error {
 	poi := &wfOutbound{
-		pi:                              i.pi,
 		WorkflowOutboundInterceptorBase: interceptor.WorkflowOutboundInterceptorBase{Next: outbound},
+		pi:                              i.pi,
 	}
 
 	return i.Next.Init(poi)
