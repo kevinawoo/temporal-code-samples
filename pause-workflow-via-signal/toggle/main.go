@@ -15,7 +15,7 @@ func main() {
 	}
 	defer c.Close()
 
-	d, err := c.DescribeWorkflowExecution(context.Background(), "hello_world_workflowID", "")
+	d, err := c.DescribeWorkflowExecution(context.Background(), "pause_workflow_ID", "")
 	if err != nil {
 		log.Fatalln("Unable to describe workflow", err)
 	}
@@ -31,7 +31,7 @@ func main() {
 	if paused {
 		signal = pause.ResumeSignalName
 	}
-	err = c.SignalWorkflow(context.Background(), "hello_world_workflowID", "", signal, nil)
+	err = c.SignalWorkflow(context.Background(), "pause_workflow_ID", "", signal, nil)
 	if err != nil {
 		log.Fatalln("unable to signal workflow", err)
 	}

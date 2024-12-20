@@ -16,7 +16,7 @@ func main() {
 	}
 	defer c.Close()
 
-	w := worker.New(c, "hello-world", worker.Options{
+	w := worker.New(c, "pause-workflow", worker.Options{
 		Interceptors: []interceptor.WorkerInterceptor{
 			pause.NewPauseInterceptor(),
 		},

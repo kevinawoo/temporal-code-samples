@@ -27,7 +27,7 @@ type PauseInterceptor struct {
 	Paused bool
 }
 
-// InterceptWorkflow is between Starter > TemporalServer > * > start executing Workflow
+// InterceptWorkflow is between Starter > TemporalServer > * > start execution of a Workflow
 // This handles the case when the workflow is started in a paused state
 func (pi *PauseInterceptor) InterceptWorkflow(ctx workflow.Context, next interceptor.WorkflowInboundInterceptor) interceptor.WorkflowInboundInterceptor {
 	attr := workflow.GetTypedSearchAttributes(ctx)

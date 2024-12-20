@@ -20,8 +20,8 @@ func main() {
 	defer c.Close()
 
 	workflowOptions := client.StartWorkflowOptions{
-		ID:                    "hello_world_workflowID",
-		TaskQueue:             "hello-world",
+		ID:                    "pause_workflow_ID",
+		TaskQueue:             "pause-workflow",
 		WorkflowIDReusePolicy: enums.WORKFLOW_ID_REUSE_POLICY_TERMINATE_IF_RUNNING,
 		WorkflowTaskTimeout:   time.Hour,
 		TypedSearchAttributes: temporal.NewSearchAttributes(
