@@ -18,7 +18,7 @@ func main() {
 
 	w := worker.New(c, "pause-workflow", worker.Options{
 		Interceptors: []interceptor.WorkerInterceptor{
-			pause.NewPauseInterceptor(),
+			pause.NewPauseInterceptor(pause.Workflow),
 		},
 	})
 

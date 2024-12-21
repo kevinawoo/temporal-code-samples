@@ -3,17 +3,25 @@ This sample shows how to pause and resume a single workflow using a signal.
 
 This is build using workflow interceptors.
 
+This sample includes a SearchAttribute called `PauseField` which is used to query workflows in a paused state.
+If you don't need to query for them, you can remove any references to SearchAttributes and skip step 2, creating the SearchAttribute.
+
+
 # Steps to run this sample:
 1) Run a [Temporal service](https://github.com/temporalio/samples-go/tree/main/#how-to-use).
-2) Run the following command to start the worker
+2) Create the SearchAttribute `PauseField`
+   ```bash
+   temporal operator search-attribute create --name PauseField --type Bool
+   ```
+3) Run the following command to start the worker
     ```
     go run pause-workflow-via-signal/worker/main.go
     ```
-3) Run the following command to start the example
+4) Run the following command to start the example
     ```
     go run pause-workflow-via-signal/starter/main.go
     ```
-4) Pause or Resume the workflow by running
+5) Pause or Resume the workflow by running
     ```bash
     temporal workflow signal -w pause_workflow_ID --name pause
     temporal workflow signal -w pause_workflow_ID --name resume

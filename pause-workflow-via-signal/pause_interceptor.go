@@ -5,6 +5,9 @@ import (
 	"go.temporal.io/sdk/interceptor"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
+	"reflect"
+	"runtime"
+	"strings"
 )
 
 const (
@@ -17,15 +20,49 @@ var (
 	PauseSearchAttrKey = temporal.NewSearchAttributeKeyBool(SearchAttributeName)
 )
 
-func NewPauseInterceptor() *PauseInterceptor {
-	return &PauseInterceptor{}
+// NewPauseInterceptor allows you to specify which workflows you want to enable the pause functionality for.
+// Just register the workflows here like you would in the worker when doing worker.RegisterWorkflow
+func NewPauseInterceptor(enabledFor ...interface{}) *PauseInterceptor {
+	p := &PauseInterceptor{
+		enabledFor: make(map[string]struct{}, len(enabledFor)),
+	}
+
+	for _, t := range enabledFor {
+		name, _ := getFunctionName(t)
+		p.enabledFor[name] = struct{}{}
+	}
+
+	return p
 }
 
 type PauseInterceptor struct {
 	interceptor.WorkerInterceptorBase
+	enabledFor map[string]struct{}
 }
 
 var _ interceptor.WorkerInterceptor = (*PauseInterceptor)(nil) // ensure interface is implemented
+
+// stolen from go.temporal.io/sdk/internal/internal_worker.go:1821 getFunctionName
+func getFunctionName(i interface{}) (name string, isMethod bool) {
+	if fullName, ok := i.(string); ok {
+		return fullName, false
+	}
+	fullName := runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+	// Full function name that has a struct pointer receiver has the following format
+	// <prefix>.(*<type>).<function>
+	isMethod = strings.ContainsAny(fullName, "*")
+	elements := strings.Split(fullName, ".")
+	shortName := elements[len(elements)-1]
+	// This allows to call activities by method pointer
+	// Compiler adds -fm suffix to a function name which has a receiver
+	// Note that this works even if struct pointer used to get the function is nil
+	// It is possible because nil receivers are allowed.
+	// For example:
+	// var a *Activities
+	// ExecuteActivity(ctx, a.Foo)
+	// will call this function which is going to return "Foo"
+	return strings.TrimSuffix(shortName, "-fm"), isMethod
+}
 
 // InterceptWorkflow
 //
@@ -33,6 +70,12 @@ var _ interceptor.WorkerInterceptor = (*PauseInterceptor)(nil) // ensure interfa
 //
 // This handles the case when the workflow is started in a paused state
 func (pi *PauseInterceptor) InterceptWorkflow(ctx workflow.Context, next interceptor.WorkflowInboundInterceptor) interceptor.WorkflowInboundInterceptor {
+	// skip if the workflow is not enabled for this interceptor
+	info := workflow.GetInfo(ctx)
+	if _, found := pi.enabledFor[info.WorkflowType.Name]; !found {
+		return next
+	}
+
 	// create an instance of the inbound interceptor for this workflow
 	// note: this is unique for each workflow execution
 	return &wfInbound{
