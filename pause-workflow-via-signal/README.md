@@ -9,7 +9,22 @@
     ```
     go run pause-workflow-via-signal/starter/main.go
     ```
-4) Toggle the workflow by running toggle example
+4) Pause or Resume the workflow by running
+    ```bash
+    temporal workflow signal -w pause_workflow_ID --name pause
+    temporal workflow signal -w pause_workflow_ID --name resume
     ```
-    go run pause-workflow-via-signal/toggle/main.go
-    ```
+
+Note, there's an interesting behavior if you send `pause, resume, pause` 
+very quickly (or before a worker can pick it up), it will let 1 activity through.
+This makes sense because the execution is linear, so it really becomes:
+- pause signal sent
+- interceptor **queues up** the next activity
+- resume signal sent
+- interceptor releases that activity
+- pause signal sent
+- interceptor **queues up** the next activity
+
+It's probably possible to change the behavior so that the interceptor 
+reduces over the signals and only uses the last result,
+but that feels really weird/wrong.

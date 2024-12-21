@@ -9,9 +9,9 @@ import (
 )
 
 // Workflow allows pausing of Activities via a signal
-func Workflow(ctx workflow.Context, name string) (string, error) {
+func Workflow(ctx workflow.Context) (string, error) {
 	// normally we'd use a logger so that replay doesn't spam the console
-	// but in this case, we'll want to see how interceptors work during replay
+	// but in this case, we can see how interceptors work during replay
 	logger := workflow.GetLogger(ctx)
 	_ = logger
 
@@ -23,14 +23,14 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
 	for i := 0; ; i++ {
-		fmt.Println("try sending a signal to pause a workflow!")
 		fmt.Println("scheduling activity", i)
 		err := workflow.ExecuteActivity(ctx, Activity, i).Get(ctx, nil)
 		if err != nil {
 			fmt.Println("activity failed.", "Error", err)
 			return "", err
 		}
-		fmt.Println("activity completed", i, "\n")
+		fmt.Println("activity completed", i)
+		fmt.Println("try sending a signal to pause a workflow!\n")
 	}
 
 	return "done", nil
