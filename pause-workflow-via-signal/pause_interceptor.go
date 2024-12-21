@@ -110,7 +110,8 @@ func (o *wfOutbound) handlePause(ctx workflow.Context) {
 // ExecuteActivity interceptor is between: WorkflowCode.ExecuteActivity >...*...> RunningAnActivity
 // We're still in the workflow context, so we can add any workflow logic here.
 //
-// You'll also want to consider which other sdk calls you may want intercept to pause.
+// You'll also want to consider which other sdk functions need the pause functionality.
+// In this case, Activities-like things are good enough.
 func (o *wfOutbound) ExecuteActivity(ctx workflow.Context, activityType string, args ...any) workflow.Future {
 	fmt.Println("ExecuteActivity interceptor, paused?", o.paused)
 	o.handlePause(ctx)
