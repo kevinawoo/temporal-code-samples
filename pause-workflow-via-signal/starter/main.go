@@ -4,6 +4,7 @@ import (
 	"context"
 	pause "github.com/kevinawoo/temporal-code-samples/pause-workflow-via-signal"
 	"go.temporal.io/api/enums/v1"
+	"go.temporal.io/sdk/temporal"
 	"log"
 	"time"
 
@@ -25,10 +26,8 @@ func main() {
 		WorkflowTaskTimeout:   time.Hour,
 
 		// SearchAttributes are only used to make it easier to search for paused workflows.
-		// We can rely solely on Signals to pause workflows
-		//TypedSearchAttributes: temporal.NewSearchAttributes(
-		//	pause.PauseSearchAttrKey.ValueSet(false),
-		//),
+		// We can rely solely on Signals to pause/resume a workflow
+		TypedSearchAttributes: temporal.NewSearchAttributes(),
 	}
 
 	// if we want to start the workflow in paused state, then SignalWithStartWorkflow:
