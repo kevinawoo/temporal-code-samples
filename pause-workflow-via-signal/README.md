@@ -1,5 +1,7 @@
-### Steps to run this sample:
+# Pause Workflow via Signal
+This sample shows how to pause and resume a single workflow using a signal.
 
+# Steps to run this sample:
 1) Run a [Temporal service](https://github.com/temporalio/samples-go/tree/main/#how-to-use).
 2) Run the following command to start the worker
     ```
