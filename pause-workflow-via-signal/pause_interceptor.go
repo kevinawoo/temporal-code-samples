@@ -107,7 +107,7 @@ func (o *wfOutbound) handlePause(ctx workflow.Context) {
 	return
 }
 
-// ExecuteActivity interceptor is between: WorkflowCode.ExecuteActivity >...*...> RunningAnActivity
+// ExecuteActivity interceptor is between: WorkflowCode.ExecuteActivity > * > Schedule Activity Task > Temporal Server
 // We're still in the workflow context, so we can add any workflow logic here.
 //
 // You'll also want to consider which other sdk functions need the pause functionality.
