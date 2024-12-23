@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	SearchAttributeName = "PauseField"
+	SearchAttributeName = "Paused"
 	PauseSignalName     = "pause"
 	ResumeSignalName    = "resume"
 )
