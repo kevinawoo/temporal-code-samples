@@ -1,6 +1,10 @@
 # Pause Workflow via Signal
-There's an open feature request for pausing/unpausing workflows: https://github.com/temporalio/temporal/issues/3006. 
-This sample is a workaround until the feature is implemented. 
+There's an open feature request for pausing/unpausing workflows on the server level: https://github.com/temporalio/temporal/issues/3006.
+This sample is a workaround until the feature is implemented.
+
+> [!CAUTION]
+> This workaround will not work at large scales when trying to pause many workflows at once.
+> Issues include both costs and rate limits of signaling many workflows and the Upsert of the SearchAttribute.
 
 This is build using workflow interceptors, and registers `pause` and `resume` signals.
 
