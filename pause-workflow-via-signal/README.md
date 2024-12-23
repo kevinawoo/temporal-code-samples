@@ -57,20 +57,20 @@ sequenceDiagram
         rect rgb(255, 200, 150)
             User ->> Server: pause signal
             Server ->> Interceptor: pause signal
-            Interceptor ->> Workflow: registers holdPause to be <br> called on the next activity
+            Interceptor ->> Workflow: registers handlePause to be <br> called on the next activity
             rect white 
                Activity ->> Server: complete activity 1
                Server ->> Workflow: activity 1 completed
             end
             Workflow ->> Workflow: process original workflow code: <br> • WorkflowTaskComplete <br> • schedule next activity
-            Workflow ->> Interceptor: executes holdPause <br> aka prepends commands
+            Workflow ->> Interceptor: executes handlePause <br> aka prepends commands
             Interceptor ->> Server: <br> • UpsertSearchAttribute <br> • Create Signals <br> • Blocks waiting for resume Signal <br> • WorkflowTaskComplete <br> • schedule next activity
         end
 
         rect rgb(200, 255, 150)
             User ->> Server: resume signal
             Server ->> Interceptor: resume signal
-            Interceptor ->> Workflow: release the hold
+            Interceptor ->> Workflow: release the block
         end
         Workflow ->> Workflow: process next original workflow code
     end
