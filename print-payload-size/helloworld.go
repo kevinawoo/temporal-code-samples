@@ -23,7 +23,7 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 	// Notice that if we call these calls are async, the SDK will batch up commands together
 	// see the log message: "RespondWorkflowTaskCompleted payload ..."
 	//
-	// To break them apart, you'll need to issue another command, like .Get()
+	// To break them apart, you'll need to issue a synchronous command like .Get()
 	workflow.ExecuteActivity(ctx, Activity, name)
 	workflow.ExecuteActivity(ctx, Activity, name)
 	err := workflow.ExecuteActivity(ctx, Activity, name).Get(ctx, &result)
@@ -38,5 +38,5 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 }
 
 func Activity(ctx context.Context, name string) (string, error) {
-	return RandStringBytes(1_000_000 * 5), nil
+	return RandStringBytes(1_000_000 * 2), nil
 }

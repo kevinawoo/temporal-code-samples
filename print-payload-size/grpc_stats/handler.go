@@ -54,6 +54,9 @@ func (st *Handler) HandleRPC(ctx context.Context, stat stats.RPCStats) {
 	switch methodName {
 	case "StartWorkflowExecution":
 		switch stat := stat.(type) {
+		//case *stats.OutHeader:
+		//	// There's usually not an issue with OutHeader unless there's a proxy adding headers
+		//	fmt.Printf("%s %d out headers: %+v\n", methodName, stat.Header.Len(), stat.Header)
 		case *stats.OutPayload:
 			payload := stat.Payload.(*workflowservice.StartWorkflowExecutionRequest)
 			_ = payload
@@ -64,9 +67,13 @@ func (st *Handler) HandleRPC(ctx context.Context, stat stats.RPCStats) {
 	case "RespondWorkflowTaskCompleted":
 		switch stat := stat.(type) {
 		case *stats.OutPayload:
+			// reasons the payload might exceed 4MB limit:
+			//	- the payload itself might be too large
+			//	- the SDK batching together Workflow Event commands, especially if the Workflow creates a bunch of async commands
 			payload := stat.Payload.(*workflowservice.RespondWorkflowTaskCompletedRequest)
 			fmt.Println(methodName, "payload size", ByteCountSI(int64(stat.Length)), "len(commands)", len(payload.Commands))
 		}
+
 	case "RespondActivityTaskCompleted":
 		switch stat := stat.(type) {
 		case *stats.OutPayload:
