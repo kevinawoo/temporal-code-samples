@@ -20,10 +20,11 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 	var result string
 	name = RandStringBytes(1_000_000 * 1)
 
-	// Notice that if we call these calls are async, the SDK will batch up commands together
-	// see the log message: "RespondWorkflowTaskCompleted payload ..."
+	// Notice that if we call these ExecuteActivity calls are asynchronous, the SDK will batch them together to the Server
+	// In this case, the gRPC interceptor will print out
+	//		RespondWorkflowTaskCompleted payload size 3.0 MB len(commands) 3
 	//
-	// To break them apart, you'll need to issue a synchronous command like .Get()
+	// The `.Get()` command is a synchronous, which the SDK will wait for a result
 	workflow.ExecuteActivity(ctx, Activity, name)
 	workflow.ExecuteActivity(ctx, Activity, name)
 	err := workflow.ExecuteActivity(ctx, Activity, name).Get(ctx, &result)
