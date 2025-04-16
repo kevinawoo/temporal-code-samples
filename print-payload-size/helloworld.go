@@ -40,5 +40,5 @@ func Workflow(ctx workflow.Context, payload string) (string, error) {
 }
 
 func Activity(ctx context.Context, input string) (string, error) {
-	return RandStringBytes(1_000_000 * 2), nil
+	return RandStringBytes(1_000_000 * 2), nil // generate a random 2MB payload
 }
