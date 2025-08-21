@@ -3,6 +3,9 @@
 > This is not explicity recommended by Temporal because this could increase replay latency since there'd be lots of
 > calls to decode (may include network calls) during replays.
 
+> [!NOTE]
+> Datadog also opensourced their own version of something similar https://github.com/DataDog/temporal-large-payload-codec
+
 
 This sample demonstrates how to use the DataConverter to store large payloads greater than a certain size 
 in a blobstore and passes the object path around in the Temporal Event History.
