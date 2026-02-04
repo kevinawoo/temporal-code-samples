@@ -1,15 +1,16 @@
 package main
 
 import (
+	"log"
+	"print_payload_size"
+	"print_payload_size/grpc_stats"
+	"time"
+
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
 	sdktally "go.temporal.io/sdk/contrib/tally"
 	"google.golang.org/grpc"
-	"log"
-	"print_payload_size"
-	"print_payload_size/grpc_stats"
-	"time"
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
@@ -22,6 +23,8 @@ func main() {
 			ListenAddress: "0.0.0.0:9091",
 			TimerType:     "histogram",
 		})),
+
+		// configure the interceptor
 		ConnectionOptions: client.ConnectionOptions{
 			DialOptions: []grpc.DialOption{
 				grpc.WithStatsHandler(grpc_stats.New()),

@@ -3,10 +3,11 @@ package grpc_stats
 import (
 	"context"
 	"fmt"
-	"go.temporal.io/api/workflowservice/v1"
-	"google.golang.org/grpc/stats"
 	"path/filepath"
 	"reflect"
+
+	"go.temporal.io/api/workflowservice/v1"
+	"google.golang.org/grpc/stats"
 )
 
 type Handler struct{}
@@ -49,12 +50,20 @@ func (st *Handler) HandleRPC(ctx context.Context, stat stats.RPCStats) {
 		methodName = filepath.Base(s.FullMethodName)
 	}
 
-	fmt.Println("handleRPC:", methodName, reflect.TypeOf(stat))
+	// print out the types for debugging
+	switch stat := stat.(type) {
+	case *stats.InPayload:
+		fmt.Println("handleRPC:", methodName, reflect.TypeOf(stat), "payload.(type)", reflect.TypeOf(stat.Payload))
+	case *stats.OutPayload:
+		fmt.Println("handleRPC:", methodName, reflect.TypeOf(stat), "payload.(type)", reflect.TypeOf(stat.Payload))
+	default:
+		fmt.Println("handleRPC:", methodName, reflect.TypeOf(stat))
+	}
 
 	switch methodName {
 	case "StartWorkflowExecution":
 		switch stat := stat.(type) {
-		//case *stats.OutHeader:
+		case *stats.OutHeader:
 		//	// There's usually not an issue with OutHeader unless there's a proxy adding headers
 		//	fmt.Printf("%s %d out headers: %+v\n", methodName, stat.Header.Len(), stat.Header)
 		case *stats.OutPayload:
