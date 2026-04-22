@@ -31,6 +31,8 @@ func Workflow(ctx workflow.Context, name string) (string, error) {
 		"Key2": true,
 		"Key3": "seattle",
 	}
+	// encrypt the memo by setting the SDK flag: TEMPORAL_SDK_FLAG_7=1
+	// flag 7 comes from: https://github.com/temporalio/sdk-go/blob/e47a8d2466c79b5d17a1664360f82f1e376bca2f/internal/internal_flags.go#L39
 	err := workflow.UpsertMemo(ctx, memo)
 	if err != nil {
 		return "", err
