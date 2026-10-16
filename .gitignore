@@ -26,3 +26,4 @@ go.work.sum
 .env
 out/
 *.private.env.json
+grafana-storage
